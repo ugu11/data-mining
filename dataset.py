@@ -4,7 +4,7 @@ import numpy as np
 
 class Dataset:
     # def __init__(self, X: np.ndarray, y: np.ndarray = None, features: Sequence[str] = None, label: str = None):
-    def __init__(self, filename, sep=','):
+    def __init__(self, filename, sep=',', skip_header=1):
         """
         Dataset represents a machine learning tabular dataset.
         Parameters
@@ -33,7 +33,7 @@ class Dataset:
         self.y = None
 
         if filename is not None:
-            self.readDataset(filename, sep)
+            self.readDataset(filename, sep, skip_header)
         # self.features = features
         # self.label = label
 
@@ -48,9 +48,11 @@ class Dataset:
 
         return None
     
-    def __read_datatypes(self, filename, sep):
+    def __read_datatypes(self, filename, sep, skip_header):
         with open(filename) as file:
-            feature_names = file.readline().rstrip().split(sep)
+            if skip_header > 0:
+                feature_names = file.readline().rstrip().split(sep)
+            else: feature_names = None
             line = file.readline().rstrip().split(sep)
             numericals = []
             categoricals = []
@@ -70,7 +72,8 @@ class Dataset:
         categories = {}
         for c in range(len(cols)):
             col = data.T[c]
-            categories[c] = np.unique(col)
+            uniques = np.unique(col)
+            categories[c] = np.delete(uniques, uniques == '')
         return categories
         
     def __label_encode(self, data, categorical_columns):
@@ -81,17 +84,16 @@ class Dataset:
             cats = categories[k]
             for c in range(len(cats)):
                 cat = cats[c]
-                if cat.strip() == '': continue
                 dt = np.transpose((data.T[k] == cat).nonzero())
                 enc_data.T[k, dt] = c
 
         return enc_data, categories
 
-    def readDataset(self, filename, sep = ","):
-        feature_names, numericals, categoricals = self.__read_datatypes(filename, sep)
+    def readDataset(self, filename, sep = ",", skip_header=1):
+        feature_names, numericals, categoricals = self.__read_datatypes(filename, sep, skip_header)
             
-        n_data = np.genfromtxt(filename, delimiter=sep, usecols=numericals, skip_header=1)
-        c_data = np.genfromtxt(filename, delimiter=sep, dtype='U', usecols=categoricals, skip_header=1)
+        n_data = np.genfromtxt(filename, delimiter=sep, usecols=numericals, skip_header=skip_header)
+        c_data = np.genfromtxt(filename, delimiter=sep, dtype='U', usecols=categoricals, skip_header=skip_header)
         if len(c_data.shape) == 1:
             c_data = np.reshape(c_data, (c_data.shape[0], 1))
 
@@ -102,8 +104,12 @@ class Dataset:
         data.T[categoricals] = enc_data.T
 
         self.data = data
-        self.feature_names = feature_names[:-1]
-        self.label = feature_names[-1]
+        if skip_header == 0:
+            self.feature_names = None
+            self.label = None
+        else:
+            self.feature_names = feature_names[:-1]
+            self.label = feature_names[-1]
         self.numerical_cols = numericals
         self.categorical_cols = categoricals
         self.categories = categories
