@@ -23,12 +23,6 @@ def get_col_type(value):
     if np.issubdtype(arr.dtype, np.dtype('U')): return 'categorical'
 
     return None
-
-def converter(v, dtype):
-    if dtype == 'number':
-        return float(v)
-    else:
-        return str(v)
     
 def main2():
     filename = 'data.csv'
@@ -43,7 +37,7 @@ def main2():
             dtype = get_col_type(col)
             if dtype == 'number':
                 numericals.append(i)
-            else:
+            elif dtype == 'categorical':
                 categoricals.append(i)
             
         n_data = np.genfromtxt(filename, delimiter=sep, usecols=numericals)
@@ -53,27 +47,18 @@ def main2():
             col = c_data[:, c]
             categories[c] = np.unique(col)
 
-        print(categories)
-
         enc_data = np.full(c_data.shape, np.nan)
-        print(enc_data)
        
         for k in categories:
             cats = categories[k]
-            print("Cats", cats)
             for c in range(len(cats)):
                 cat = cats[c]
+                if cat.strip() == '': continue
                 dt = np.transpose((c_data.T[k] == cat).nonzero())
                 enc_data.T[k, dt] = c
-        print(c_data)
-        print(enc_data)
-        print(n_data)
-
-
         data = np.concatenate((n_data.T, enc_data.T)).T
 
         print(data)
-
 
     # # X = data[:,0:-1]
     # # Y = data[:,-1]
@@ -81,5 +66,5 @@ def main2():
 
 
 if __name__ == '__main__':
-    # main()
-    main2()
+    main()
+    # main2()
