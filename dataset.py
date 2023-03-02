@@ -205,27 +205,19 @@ class Dataset:
             if replaceby == 'mode':
                 _, counts = np.unique(feature_values, return_counts=True)
                 mode_value = np.argmax(counts)
-
-                # Replace missing values with mode value
                 filled_feature = np.where(np.isnan(feature_values), mode_value, feature_values)
-
-                # Replace the feature in the original dataset with the filled feature
                 filled_dataset = np.copy(self.X)
                 filled_dataset[:, feature_index] = filled_feature
 
             elif replaceby == 'mean':
                 mean_value = np.nanmean(feature_values)
-
-                # Replace missing values with mean value
                 filled_feature = np.where(np.isnan(feature_values), mean_value, feature_values)
-
-                # Replace the feature in the original dataset with the filled feature
                 filled_dataset = np.copy(self.X)
                 filled_dataset[:, feature_index] = filled_feature
 
             return filled_dataset
         else:
-            print("Não existe essa coluna")
+            print("That feature doesn't exist")
 
     def get_feature(self, feature_index) -> np.ndarray:
         """
@@ -237,7 +229,7 @@ class Dataset:
         if self.X.shape[1] > feature_index:
             return self.X[:, feature_index]
         else:
-            print("Não existe essa coluna")
+            print("That feature doesn't exist")
 
     def get_line(self, line_index) -> np.ndarray:
         """
@@ -249,7 +241,7 @@ class Dataset:
         if self.X.shape[0] > line_index:
             return self.X[line_index, :]
         else:
-            print("Não existe essa linha")
+            print("That entry doesn't exist")
 
     def get_value(self, line_index, feature_index) -> np.ndarray:
         """
@@ -261,11 +253,11 @@ class Dataset:
         if self.X.shape[0] > line_index and self.X.shape[1] > feature_index:
             return self.X[line_index, feature_index]
         else:
-            print("Não existe essa valor")
+            print("That value doesn't exist")
 
     def set_value(self, line_index, feature_index, new_value) -> np.ndarray:
         """
-        Returns the dataset with the new value 
+        Returns a dataset with the new value 
         Returns
         -------
         numpy.ndarray (n_features)
@@ -274,11 +266,11 @@ class Dataset:
             self.X[line_index, feature_index] = new_value
             return self.X
         else:
-            print("Não existe essa valor")
+            print("That value doesn't exist")
 
     def count_missing_values(self) -> np.ndarray:
         """
-        Return the number of missing values in a dataset.
+        Returns the number of missing values in a dataset.
         Returns
         -------
         numpy.ndarray (n_features)
