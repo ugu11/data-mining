@@ -116,11 +116,6 @@ class Dataset:
 
         self.X = self.data[:,0:-1]
         self.y = self.data[:,-1]
-        print(self.feature_names)
-        print(self.label)
-        print(self.categories)
-        print(self.X)
-        print(self.y)
 
 
     def shape(self) -> Tuple[int, int]:
@@ -196,6 +191,100 @@ class Dataset:
         numpy.ndarray (n_features)
         """
         return np.nanmax(self.X, axis=0)
+
+    def replace_missing_values(self, replaceby, feature_index) -> np.ndarray:
+        """
+        Returns the missing values replaced by the median
+        Returns
+        -------
+        numpy.ndarray (n_features)
+        """
+        if self.X.shape[1] > feature_index:                
+            feature_values = self.X[:, feature_index]
+
+            if replaceby == 'mode':
+                _, counts = np.unique(feature_values, return_counts=True)
+                mode_value = np.argmax(counts)
+
+                # Replace missing values with mode value
+                filled_feature = np.where(np.isnan(feature_values), mode_value, feature_values)
+
+                # Replace the feature in the original dataset with the filled feature
+                filled_dataset = np.copy(self.X)
+                filled_dataset[:, feature_index] = filled_feature
+
+            elif replaceby == 'mean':
+                mean_value = np.nanmean(feature_values)
+
+                # Replace missing values with mean value
+                filled_feature = np.where(np.isnan(feature_values), mean_value, feature_values)
+
+                # Replace the feature in the original dataset with the filled feature
+                filled_dataset = np.copy(self.X)
+                filled_dataset[:, feature_index] = filled_feature
+
+            return filled_dataset
+        else:
+            print("Não existe essa coluna")
+
+    def get_feature(self, feature_index) -> np.ndarray:
+        """
+        Returns the specified feature from the dataset
+        Returns
+        -------
+        numpy.ndarray (n_features)
+        """
+        if self.X.shape[1] > feature_index:
+            return self.X[:, feature_index]
+        else:
+            print("Não existe essa coluna")
+
+    def get_line(self, line_index) -> np.ndarray:
+        """
+        Returns the specified line from the dataset
+        Returns
+        -------
+        numpy.ndarray (n_features)
+        """
+        if self.X.shape[0] > line_index:
+            return self.X[line_index, :]
+        else:
+            print("Não existe essa linha")
+
+    def get_value(self, line_index, feature_index) -> np.ndarray:
+        """
+        Returns the specified value from the dataset
+        Returns
+        -------
+        numpy.ndarray (n_features)
+        """
+        if self.X.shape[0] > line_index and self.X.shape[1] > feature_index:
+            return self.X[line_index, feature_index]
+        else:
+            print("Não existe essa valor")
+
+    def set_value(self, line_index, feature_index, new_value) -> np.ndarray:
+        """
+        Returns the dataset with the new value 
+        Returns
+        -------
+        numpy.ndarray (n_features)
+        """
+        if self.X.shape[0] > line_index and self.X.shape[1] > feature_index:
+            self.X[line_index, feature_index] = new_value
+            return self.X
+        else:
+            print("Não existe essa valor")
+
+    def count_missing_values(self) -> np.ndarray:
+        """
+        Return the number of missing values in a dataset.
+        Returns
+        -------
+        numpy.ndarray (n_features)
+        """
+        missing_values = np.count_nonzero(np.isnan(self.X))
+        return missing_values
 
     # def summary(self) -> pd.DataFrame:
     #     """
