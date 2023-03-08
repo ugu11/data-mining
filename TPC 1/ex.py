@@ -4,8 +4,8 @@ import numpy as np
 def main():
     dataset = Dataset('data.csv', skip_header=0)
     dataset2 = Dataset('notas.csv')
-    # a = dataset.replace_missing_values("mode",3)
-    # print(a)
+    a = dataset.count_missing_values()
+    print(a)
 
 if __name__ == '__main__':
     main()
