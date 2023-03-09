@@ -199,33 +199,21 @@ class Dataset:
         -------
         numpy.ndarray (n_features)
         """
-        # for i in self.feature_names:
-        #     if i == feature_name:
-        #         feature_index = self.data.index(feature_name) 
-        # feature_index = self.y.index(feature_name)
-
-        print(self.feature_names)
-        print(len(self.feature_names))
-        print(self.label)
-        print(len(self.label))
-        print(len(self.feature_names) + len(self.label))
-
         if self.X.shape[1] > feature_index:                
-            feature_values = self.data[:, feature_index]
-
+            feature_values = self.X[:, feature_index]
+            
             if replaceby == 'mode':
                 values, counts = np.unique(feature_values, return_counts=True)
-                mode_count = np.argmax(counts)
-                indice = np.where(counts ==mode_count)[0]
-                mode_value = values[indice]
+                mode_index = np.argmax(counts)
+                mode_value = values[mode_index]
                 filled_feature = np.where(np.isnan(feature_values), mode_value, feature_values)
-                filled_dataset = np.copy(self.data)
+                filled_dataset = np.copy(self.X)
                 filled_dataset[:, feature_index] = filled_feature
 
             elif replaceby == 'mean':
                 mean_value = np.nanmean(feature_values)
                 filled_feature = np.where(np.isnan(feature_values), mean_value, feature_values)
-                filled_dataset = np.copy(self.data)
+                filled_dataset = np.copy(self.X)
                 filled_dataset[:, feature_index] = filled_feature
 
             return filled_dataset
