@@ -1,4 +1,4 @@
-from dataset import Dataset
+from TPC2.dataset import Dataset
 import numpy as np
 
 def main():

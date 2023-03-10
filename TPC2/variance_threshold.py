@@ -4,7 +4,6 @@ from TPC1.dataset import Dataset
 
 
 class VarianceThreshold:
-
     def __init__(self, threshold: float = 0.0):
         """
         Variance Threshold feature selection.

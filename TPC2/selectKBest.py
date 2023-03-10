@@ -5,7 +5,7 @@ sys.path.append('C:\\Users\\ASUS\\Ambiente de Trabalho\\2ºsemestre\\MD\\data-mi
 from dataset import Dataset
 from typing import Callable
 from f_classif import f_classif 
-#from f_regression import f_regression
+from f_regression import f_regression
 
 class SelectKBest:
 
@@ -27,13 +27,10 @@ class SelectKBest:
         return self
 
     def transform(self, dataset: Dataset) -> Dataset:
-        indexsK = self.p.argsort()[:self.k]#ordenar os ultimos 5
-        #print(indexsK)
+        indexsK = self.p.argsort()[:self.k] #ordenar os ultimos k
         features = np.array(dataset.feature_names)[indexsK]
-        #print(features)
-        dt = Dataset()
-        dt.create_dataset(X=dataset.X[:, indexsK], y=dataset.y, features=list(features), label=dataset.label)
-        return dt.X
+
+        return features
 
     def fit_transform(self, dataset: Dataset) -> Dataset:
         self.fit(dataset)
@@ -42,7 +39,10 @@ class SelectKBest:
 if __name__ == '__main__':
     from dataset import Dataset
     dataset = Dataset('data_cachexia.csv')
-    selector = SelectKBest(5)
+    selector = SelectKBest(3, score_func=f_regression)
     selector = selector.fit(dataset)
-    dataset = selector.transform(dataset)
+    features = selector.transform(dataset)
+    print(features)
+    print(type(features) is np.ndarray)
+    print(dataset.get_feature(features))
     #print(dataset)

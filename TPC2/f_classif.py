@@ -1,7 +1,6 @@
 from typing import Tuple, Union
 import numpy as np
 import sys
-sys.path.append('C:\\Users\\ASUS\\Ambiente de Trabalho\\2ºsemestre\\MD\\data-mining\\TPC1')
 
 from dataset import Dataset
 from scipy.stats import f_oneway
