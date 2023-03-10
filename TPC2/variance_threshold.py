@@ -1,7 +1,6 @@
 import numpy as np
 
-from TPC1.dataset import Dataset
-
+from dataset import Dataset
 
 class VarianceThreshold:
     def __init__(self, threshold: float = 0.0):
@@ -45,7 +44,6 @@ class VarianceThreshold:
 
 
 if __name__ == '__main__':
-    from TPC1.dataset import Dataset
 
     dataset = Dataset('notas.csv')
 

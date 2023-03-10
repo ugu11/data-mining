@@ -5,7 +5,8 @@ from dataset import Dataset
 from scipy import stats
 from sklearn import feature_selection
 
-def f_regression(dataset: Dataset):
+def f_regression(dataset: Dataset) -> Union[Tuple[np.ndarray, np.ndarray],
+                                                Tuple[float, float]]:
     X = dataset.X
     y = dataset.y
     n_samples = X.shape[0]
@@ -13,7 +14,6 @@ def f_regression(dataset: Dataset):
 
     # Compute the correlation matrix between features and target
     corr = np.corrcoef(X.T, y)[0,1]
-    print(corr.shape)
 
     corr = np.zeros(n_features)
     for i in range(n_features):
@@ -25,7 +25,6 @@ def f_regression(dataset: Dataset):
 
     # Compute the F-score and p-value using the formula
     F = (corr**2 / (1 - corr**2)) * df_denom / df_num
-    print(F.shape)
     p = 1 - stats.f.cdf(F, df_num, df_denom)
 
     return F, p

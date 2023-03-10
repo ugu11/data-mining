@@ -1,6 +1,5 @@
 import numpy as np
 import sys
-sys.path.append('C:\\Users\\ASUS\\Ambiente de Trabalho\\2ºsemestre\\MD\\data-mining\\TPC1')
 
 from dataset import Dataset
 from typing import Callable
@@ -21,16 +20,15 @@ class SelectKBest:
 
     def fit(self, dataset: Dataset) -> 'SelectKBest':
         self.F, self.p = self.score_func(dataset)
-        # print(self.F)
-        # print("------------")
-        # print(self.p)
         return self
 
     def transform(self, dataset: Dataset) -> Dataset:
-        indexsK = self.p.argsort()[:self.k] #ordenar os ultimos k
+        indexsK = self.p.argsort()[:self.k]
         features = np.array(dataset.feature_names)[indexsK]
+        
+        transformed_Data = Dataset(X=dataset.get_feature(features), y=dataset.y, features=features, label=dataset.label)
 
-        return features
+        return transformed_Data
 
     def fit_transform(self, dataset: Dataset) -> Dataset:
         self.fit(dataset)
@@ -41,8 +39,6 @@ if __name__ == '__main__':
     dataset = Dataset('data_cachexia.csv')
     selector = SelectKBest(3, score_func=f_regression)
     selector = selector.fit(dataset)
-    features = selector.transform(dataset)
-    print(features)
-    print(type(features) is np.ndarray)
-    print(dataset.get_feature(features))
-    #print(dataset)
+    new_data = selector.transform(dataset)
+    print(new_data)
+    print(new_data.X, new_data.feature_names)

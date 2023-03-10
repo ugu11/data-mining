@@ -4,7 +4,7 @@ import numpy as np
 
 class Dataset:
     # def __init__(self, X: np.ndarray, y: np.ndarray = None, features: Sequence[str] = None, label: str = None):
-    def __init__(self, filename, sep=',', skip_header=1):
+    def __init__(self, filename=None, sep=',', skip_header=1, X=None, y=None, features=None, label=None):
         """
         Dataset represents a machine learning tabular dataset.
         Parameters
@@ -34,6 +34,15 @@ class Dataset:
 
         if filename is not None:
             self.readDataset(filename, sep, skip_header)
+        elif type(X) != type(None) and type(y) != type(None):
+            self.X = X
+            self.y = y
+
+        if type(features) != type(None):
+            self.feature_names = features
+        
+        if type(label) != type(None):
+            self.label = label
         # self.features = features
         # self.label = label
 

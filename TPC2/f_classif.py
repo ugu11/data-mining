@@ -4,6 +4,7 @@ import sys
 
 from dataset import Dataset
 from scipy.stats import f_oneway
+from sklearn import feature_selection
 
 
 def f_classif(dataset: Dataset) -> Union[Tuple[np.ndarray, np.ndarray],
@@ -21,15 +22,12 @@ def f_classif(dataset: Dataset) -> Union[Tuple[np.ndarray, np.ndarray],
             valuesp.append(p)
         valuesF = np.array(valuesF)
         valuesp = np.array(valuesp)
-        # print(valuesF)
-        # print("-------------")
-        # print(valuesp)
         return valuesF, valuesp
 
-
-# if __name__ == '__main__':
-#     from dataset import Dataset
-#     dataset = Dataset('data_cachexia.csv')
-#     selector = f_classif(dataset)
-    #dataset = selector.transform(dataset)
-    #print(dataset.features)
+if __name__ == '__main__':
+    dataset = Dataset('data_cachexia.csv')
+    print(dataset.X.shape, dataset.y.shape)
+    f, p = f_classif(dataset)
+    fr, pr = feature_selection.f_classif(dataset.X, dataset.y)
+    print("=>", f, fr)
+    print("=>", p, pr)
