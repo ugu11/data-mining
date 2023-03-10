@@ -4,7 +4,7 @@ import numpy as np
 
 class Dataset:
     # def __init__(self, X: np.ndarray, y: np.ndarray = None, features: Sequence[str] = None, label: str = None):
-    def __init__(self, filename, sep=',', skip_header=1):
+    def __init__(self, filename = None, sep=',', skip_header=1):
         """
         Dataset represents a machine learning tabular dataset.
         Parameters
@@ -36,6 +36,23 @@ class Dataset:
             self.readDataset(filename, sep, skip_header)
         # self.features = features
         # self.label = label
+
+    def create_dataset(self, X: np.ndarray, y: np.ndarray = None, features: Sequence[str] = None, label: str = None):
+        if X is None:
+            raise ValueError("X cannot be None")
+
+        if features is None:
+            features = [str(i) for i in range(X.shape[1])]
+        else:
+            features = list(features)
+
+        if y is not None and label is None:
+            label = "y"
+
+        self.X = X
+        self.y = y
+        self.feature_names = features
+        self.label = label
 
     def __get_col_type(self, value):
         try:
@@ -219,6 +236,31 @@ class Dataset:
             return filled_dataset
         else:
             print("That feature doesn't exist")
+
+    def replace_missing_values_dataset(self, replaceby) -> np.ndarray:
+        """
+        Returns the missing values replaced by the median in all dataset
+        Returns
+        -------
+        numpy.ndarray (n_features)
+        """
+        #print(len(self.feature_names))
+        for feature_index in range(len(self.feature_names)): 
+            feature_values = self.X[:, feature_index]   
+            if replaceby == 'mode':
+                values, counts = np.unique(feature_values, return_counts=True)
+                mode_index = np.argmax(counts)
+                mode_value = values[mode_index]
+                filled_feature = np.where(np.isnan(feature_values), mode_value, feature_values)
+                self.X[:, feature_index] = filled_feature
+
+            elif replaceby == 'mean':
+                mean_value = np.nanmean(feature_values)
+                filled_feature = np.where(np.isnan(feature_values), mean_value, feature_values)
+                self.X[:, feature_index] = filled_feature
+            
+
+        return self.X
 
     def get_feature(self, feature_index) -> np.ndarray:
         """
