@@ -27,9 +27,10 @@ class SelectKBest:
         return self
 
     def transform(self, dataset: Dataset) -> Dataset:
-        indexsK = self.F.argsort()[-self.k:]#ordenar os ultimos 5
+        indexsK = self.p.argsort()[:self.k]#ordenar os ultimos 5
+        #print(indexsK)
         features = np.array(dataset.feature_names)[indexsK]
-        print(features)
+        #print(features)
         dt = Dataset()
         dt.create_dataset(X=dataset.X[:, indexsK], y=dataset.y, features=list(features), label=dataset.label)
         return dt.X
@@ -44,4 +45,4 @@ if __name__ == '__main__':
     selector = SelectKBest(5)
     selector = selector.fit(dataset)
     dataset = selector.transform(dataset)
-    print(dataset)
+    #print(dataset)
