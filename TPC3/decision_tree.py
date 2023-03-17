@@ -32,7 +32,7 @@ class DecisionTrees:
 
         self.tree = None
         
-    def my_predict(self, X):
+    def predict(self, X):
         return np.array([self.traverse_tree(x, self.tree) for x in X])
 
     def traverse_tree(self, x, node):
@@ -51,12 +51,12 @@ class DecisionTrees:
         n_samples, n_features = X.shape
         n_labels = len(np.unique(y))
 
-
-        if depth == self.max_depth or n_samples < self.min_samples_split or n_labels == 1:
+        # Pre-pruning conditions: size and maximum depth
+        if depth >= self.max_depth or n_samples < self.min_samples_split or n_labels == 1:
             if y is None:
                 leaf = Node(leaf = True)
             else:
-                value = self.most_common(y)
+                value = self.majority_voting(y)
                 leaf = Node(leaf = True, value = value)
             return leaf
         
@@ -67,7 +67,7 @@ class DecisionTrees:
             if y is None:
                 leaf = Node(leaf = True)
             else:
-                value = self.most_common(y)
+                value = self.majority_voting(y)
                 leaf = Node(leaf = True, value = value)
             return leaf
         
@@ -95,21 +95,12 @@ class DecisionTrees:
 
                 left_idx, right_idx = self.split(threshold,X,feature_values)
 
-                #print(feature_values)
-                leftX = feature_values[left_idx]
-                #print(leftX)
-                rightX = feature_values[right_idx]
-                #print(rightX)
-                #print("----------")
-                #print(y)
                 lefty = y[left_idx]
-                #print(lefty)
                 righty = y[right_idx]
-                #print(righty)
 
                 information_gain_before = self.apply_criterion(self.criterion,y,feature_values)
-                information_gain_left = self.apply_criterion(self.criterion,lefty,feature_values) * (len(lefty)/len(y))
-                information_gain_right = self.apply_criterion(self.criterion,righty,feature_values) * (len(righty)/len(y))
+                information_gain_left = self.apply_criterion(self.criterion,lefty,feature_values[left_idx]) * (len(lefty)/len(y))
+                information_gain_right = self.apply_criterion(self.criterion,righty,feature_values[right_idx]) * (len(righty)/len(y))
                 information_gain = information_gain_before - (information_gain_left + information_gain_right)
                 
                 if information_gain > best_gain:
@@ -134,32 +125,7 @@ class DecisionTrees:
             return self.gain_ratio(feature,y)
         else:
             raise Exception("That criteria doesn't exist") 
-        
-    def most_common(self,y):
-        """
-        Return the most common attribute value in y
-        """
-        # _, counts = np.unique(y, return_counts=True)
-        # print(counts)
-        # if counts is None:
-        #     value = 0
-        # else:
-        #     value = np.argmax(counts)
-        # return value
-        values = {}
-        for value in y:
-            if value in values:
-                values[value] += 1
-            else:
-                values[value] = 1
-        max_values = 0
-        most_common = None
-        for value, count in values.items():
-            if count > max_values:
-                max_values = count
-                most_common = value
-        return most_common
-    
+           
 
     # Escolha de atributos
     def entropy(self, y):
@@ -191,16 +157,22 @@ class DecisionTrees:
     def __prune(self):
         pass
 
-    def __majority_voting(self):
-        pass
+    def majority_voting(self,y):
+        values = {}
+        for value in y:
+            if value in values:
+                values[value] += 1
+            else:
+                values[value] = 1
+        max_values = 0
+        most_common = None
+        for value, count in values.items():
+            if count > max_values:
+                max_values = count
+                most_common = value
+        return most_common
 
-    # Pre-prunning
-    def __size_prepruning(self):
-        pass
-
-    def __maximum_depth_prepruning(self):
-        pass
-
+    #Pre-pruning
     def independence_pre_pruning(self):
         pass
 
@@ -223,13 +195,13 @@ if __name__ == '__main__':
     
     clf = DecisionTrees(max_depth=6,criterion='entropy')
     clf.fit(X_train, y_train)
-    y_pred = clf.my_predict(X_test)
+    y_pred = clf.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     print(accuracy)
 
-    clf2 = DecisionTreeClassifier(max_depth=6)
-    clf2.fit(X_train, y_train)
-    y_pred2 = clf2.predict(X_test)
-    accuracy2 = accuracy_score(y_test, y_pred2)
-    print(accuracy)
+    # clf2 = DecisionTreeClassifier(max_depth=6)
+    # clf2.fit(X_train, y_train)
+    # y_pred2 = clf2.predict(X_test)
+    # accuracy2 = accuracy_score(y_test, y_pred2)
+    # print(accuracy)
 
