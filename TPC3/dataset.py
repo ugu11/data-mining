@@ -33,7 +33,7 @@ class Dataset:
         self.y = None
 
         if filename is not None:
-            self.readDataset(filename, sep, skip_header)
+            self.readDataset(filename, sep, skip_header, label)
         elif type(X) != type(None) and type(y) != type(None):
             self.X = X
             self.y = y
@@ -98,8 +98,9 @@ class Dataset:
 
         return enc_data, categories
 
-    def readDataset(self, filename, sep = ",", skip_header=1):
+    def readDataset(self, filename, sep = ",", skip_header=1, label=None):
         feature_names, numericals, categoricals = self.__read_datatypes(filename, sep, skip_header)
+        label_index = -1 if label == None else feature_names.index(label)
             
         if len(numericals) > 0:
             n_data = np.genfromtxt(filename, delimiter=sep, usecols=numericals, skip_header=skip_header)
@@ -131,15 +132,16 @@ class Dataset:
             self.feature_names = None
             self.label = None
         else:
-            self.feature_names = feature_names[:-1]
-            self.label = [feature_names[-1]]
+            self.feature_names = feature_names.copy()
+            self.feature_names.pop(label_index)
+            self.label = [feature_names[label_index]]
         self.numerical_cols = numericals
         self.categorical_cols = categoricals
         self.categories = categories
 
-        self.X = self.data[:,0:-1]
-        self.y = self.data[:,-1]
-
+        self.X = self.data.copy()
+        self.X = np.delete(self.X, label_index, axis=1)
+        self.y = self.data[:,label_index]
 
     def shape(self) -> Tuple[int, int]:
         """
