@@ -1,18 +1,18 @@
 from dataset import Dataset
 from collections import Counter
 from sklearn.metrics import accuracy_score
-from math import log2
+from math import log2, sqrt
 import numpy as np
 
 class Node:
-
     def __init__(self, feature = None, threshold = None, left = None, right = None, leaf = False, value = None):
         self.feature = feature
         self.threshold = threshold
         self.left = left
-        self.rigth = right
+        self.right = right
         self.leaf = leaf
         self.value = value
+        self.error = 0
 
 
 class DecisionTrees:
@@ -40,9 +40,11 @@ class DecisionTrees:
             return node.value
         
         if x[node.feature] < node.threshold:
-            return self.traverse_tree(x, node.left)
+            # if node.left != None:
+                return self.traverse_tree(x, node.left)
         else:
-            return self.traverse_tree(x, node.right)
+            # if node.right != None:
+                return self.traverse_tree(x, node.right)
 
     def fit(self, X, y):
         self.tree = self.build_tree(X,y,0)
@@ -80,6 +82,14 @@ class DecisionTrees:
         node.left = self.build_tree(X[left_indices], y[left_indices], depth+1)
         node.right = self.build_tree(X[right_indices], y[right_indices], depth+1)
         
+        # Leaf node [FIX]
+        # if not (node.left or node.right):
+        #     preds = self.predict(X)
+        #     node.error = np.sum(preds != y)
+        #     return node.error
+        
+        # self.reduced_error_pruning(X, y, node)
+
         return node
     
     def find_best_split(self, X, y,n_features):
@@ -176,12 +186,20 @@ class DecisionTrees:
     def independence_pre_pruning(self):
         pass
 
-    # Post-prunning
-    def __pessimistic_error_pruning(self):
-        pass
+    def reduced_error_pruning(self, X, y, node):
+        error_true = self.reduced_error_pruning(X, y, node.left)
+        error_false = self.reduced_error_pruning(X, y, node.right)
 
+        # Prune its subnode if it has less error
+        if node.error <= error_true + error_false:
+            node.left = None
+            node.right = None
+            return node.error
+        else:
+            return error_true + error_false
 
-    
+    def score(self, X, y):
+            return np.mean(X == y)
 
 if __name__ == '__main__':
     from dataset import Dataset
@@ -190,13 +208,14 @@ if __name__ == '__main__':
     from sklearn.model_selection import train_test_split
     from sklearn.metrics import accuracy_score
 
-    data = Dataset('teste.csv',label='Outlook')
+    data = Dataset('penguins_size.csv',label='island')
     X_train, X_test, y_train, y_test = train_test_split(data.X, data.y, test_size=0.2, random_state=1234)
-    
-    clf = DecisionTrees(max_depth=6,criterion='entropy')
+    # print(X_train)
+    # print(y_train)
+    clf = DecisionTrees(max_depth=6,criterion='gain')
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
+    accuracy = clf.score(y_test, y_pred)
     print(accuracy)
 
     # clf2 = DecisionTreeClassifier(max_depth=6)
@@ -204,4 +223,3 @@ if __name__ == '__main__':
     # y_pred2 = clf2.predict(X_test)
     # accuracy2 = accuracy_score(y_test, y_pred2)
     # print(accuracy)
-
