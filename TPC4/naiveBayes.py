@@ -6,10 +6,9 @@ class NaiveBayes:
 
     def __init__(self, classes = None):
         self.classes = classes  # valores únicos de classe
-        self.values_per_class = []  # lista vazia para armazenar arrays de dados de entrada para cada classe
-        self.prior = []  # lista vazia para armazenar as probabilidades a priori para cada classe
+        self.values_per_class = []  # lista para armazenar arrays de dados de entrada para cada classe
+        self.prior = []  # lista para armazenar as probabilidades a priori para cada classe
         self.summaries = []
-        self.lk = None
 
     # divide os dados de entrada por classe
     def fit(self,X,y):
@@ -39,7 +38,7 @@ class NaiveBayes:
         #variance = sum([(x - avg) ** 2 for x in values]) / float(len(values) - 1)
         #return sqrt(variance)
 
-    # resumo de cada atributo por classe
+    # resumo(media e desvio padrão) de cada atributo por classe
     def summarize(self):
         for class_values in self.values_per_class:
             self.summaries.append([(self.mean(attribute), self.stdev(attribute)) for attribute in zip(*class_values)])
@@ -49,7 +48,7 @@ class NaiveBayes:
         exponent = exp(-((x - mean) ** 2 / (2 * stdev ** 2)))
         return (1 / (sqrt(2 * pi) * stdev)) * exponent
 
-    # calcula a probabilidade de um vetor de entrada pertencer a uma classe
+    # calcula a probabilidade de um vetor de entrada pertencer a cada classe
     def calculate_class_probabilities(self, input_vetor):
         probabilities = np.zeros(shape=(len(self.summaries), len(input_vetor)))
         for idx, classe in enumerate(self.summaries):
@@ -61,7 +60,6 @@ class NaiveBayes:
                 probabilities[idx][feature] *= self.calculate_probability(x, mean, stdev)
         return probabilities
 
-    # faz a previsão de classe para uma lista de instâncias
     def predict(self,X):
         predictions = np.zeros(shape=(X.shape[0]))
         for i, x in enumerate(X):
