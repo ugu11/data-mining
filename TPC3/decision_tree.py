@@ -200,6 +200,8 @@ class DecisionTrees:
 
     def score(self, X, y):
             return np.mean(X == y)
+    
+    
 
 if __name__ == '__main__':
     from dataset import Dataset
@@ -208,15 +210,25 @@ if __name__ == '__main__':
     from sklearn.model_selection import train_test_split
     from sklearn.metrics import accuracy_score
 
-    data = Dataset('penguins_size.csv',label='island')
+    data = Dataset('teste.csv',label='Play Tennis')
+    # print(data.X)
+    # print(data.y)
     X_train, X_test, y_train, y_test = train_test_split(data.X, data.y, test_size=0.2, random_state=1234)
+    print("-------------------------------------")
     # print(X_train)
     # print(y_train)
     clf = DecisionTrees(max_depth=6,criterion='gain')
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
-    accuracy = clf.score(y_test, y_pred)
-    print(accuracy)
+    # accuracy = clf.score(y_test, y_pred)
+    # print(accuracy)
+
+    aux = []
+    for i in range(data.X.shape[0]):
+        aux.append(data.X[i][1])
+    print(aux)
+    entropy = clf.entropy(aux)
+    print(entropy)
 
     # clf2 = DecisionTreeClassifier(max_depth=6)
     # clf2.fit(X_train, y_train)
