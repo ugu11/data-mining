@@ -41,7 +41,28 @@ class Prism:
                 X = np.delete(X, drop_idx, axis=0)
                 y = np.delete(y, drop_idx, axis=0)
 
-        self.rules = rules
+        self.rules = np.array(rules)
+
+    def predict(self, X):
+        output = []
+        # for x in X:
+        outcomes = []
+        for rule in self.rules:
+            rule_idxs = rule[:-1] != -1
+            rule_matches = X[rule_idxs] == rule[:-1][rule_idxs]
+            rule_matches = bool(np.multiply.reduce(rule_matches))
+
+            if rule_matches:
+                outcomes.append(rule[-1])
+
+        values, counts = np.unique(np.array(outcomes), return_counts=True)
+        #display value with highest frequency
+        most_frequent = values[counts.argmax()] 
+
+        return most_frequent
+            
+            
+
 
     def __build_prob_table(self, dataset, X, subset, max_feat=None, max_val=None):
         total_probs = [[], [], []]
@@ -91,3 +112,5 @@ if __name__ == '__main__':
     p = Prism()
     p.fit(d)
     print(p.rules)
+    pred = p.predict(np.array([2, 1, 0, 1]))
+    print(pred)
