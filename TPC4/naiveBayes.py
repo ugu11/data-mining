@@ -3,8 +3,46 @@ import numpy as np
 from math import exp, pi, sqrt
 
 class NaiveBayes:
+    """
+    Naive Bayes 
+
+    Parameters
+    ----------
+    classes : np.array, default=None
+        Unique class values
+
+    Attributes
+    ----------
+    values_per_classes :
+        Stores arrays of input data for each class
+
+    prior :
+        Stores the priori probabilities for each class
+
+    summaries : 
+        Stores the mean and standard deviation for each atribute per class 
+    """
 
     def __init__(self, classes = None):
+        """
+        Naive Bayes 
+
+        Parameters
+        ----------
+        classes : np.array, default=None
+            Unique class values
+
+        Attributes
+        ----------
+        values_per_classes :
+            Stores arrays of input data for each class
+
+        prior :
+            Stores the priori probabilities for each class
+
+        summaries : 
+            Stores the mean and standard deviation for each atribute per class 
+        """
         self.classes = classes  # valores únicos de classe
         self.values_per_class = []  # lista para armazenar arrays de dados de entrada para cada classe
         self.prior = []  # lista para armazenar as probabilidades a priori para cada classe
@@ -12,8 +50,15 @@ class NaiveBayes:
 
     # divide os dados de entrada por classe
     def fit(self,X,y):
-        self.classes = np.unique(y) 
+        """
+        I splits the data per class
 
+        Args:
+            X (_type_): _description_
+            y (_type_): _description_
+        """
+        self.classes = np.unique(y) 
+        print(self.classes)
         # itera através de cada valor de classe, extrai os dados de entrada correspondentes e os adiciona a values_per_class
         # e calcula as probabilidades a priori para cada classe
         for class_value in self.classes:
@@ -70,7 +115,7 @@ class NaiveBayes:
                 class_conditional = np.sum(np.log(probabilities[j]))
                 result = prior + class_conditional
                 results.append(result)
-            print("results:", results)
+            #print("results:", results)
             predictions[i] = self.classes[np.argmax(results)]
         print(predictions)
         return predictions
