@@ -6,6 +6,7 @@ class TransactionDataset:
     def __init__(self, transactions):
         self.transactions = transactions
         self.items = self._get_items()
+        self.itemsets_with_counts = []
 
     # Método para obter itens únicos em todas as transações
     def _get_items(self):
@@ -29,14 +30,16 @@ class Apriori:
     def __init__(self, minsup, transaction_dataset):
         self.minsup = minsup
         self.transaction_dataset = transaction_dataset
+        self.itemsets_with_counts = {}
 
     def fit(self):
 
         frequent_itemsets = []
         for itemset, count in self.transaction_dataset.items:
             #support = count / len(self.transaction_dataset.transactions)
-            if count >= self.minsup:
+            if count / len(self.transaction_dataset.transactions) >= self.minsup:
                 frequent_itemsets.append(itemset)
+                self.itemsets_with_counts[itemset] = self.itemsets_with_counts.get((itemset),count)
         #print(frequent_itemsets)
 
         itemsets = []
@@ -77,12 +80,23 @@ class Apriori:
 
         new_frequent_itemsets = []
         for itemset, count in candidates_with_counts.items():
-            #if count / len(self.transaction_dataset.transactions) >= self.minsup:
-            if count >= self.minsup:
+            #if count >= self.minsup:
+            if count / len(self.transaction_dataset.transactions) >= self.minsup:
                 new_frequent_itemsets.append(itemset)
-
-        #print("new_frequent_itemsets",new_frequent_itemsets)
+                self.itemsets_with_counts[itemset] = self.itemsets_with_counts.get((itemset),count)
         return new_frequent_itemsets
+    
+    def generate_association_rules(self, min_confidence):
+        rules = []
+        for itemset, support in self.itemsets_with_counts.items():
+            if len(itemset) > 1:
+                for item in itemset:
+                    antecedent = set(item)
+                    consequent = set(x for x in itemset if x not in antecedent)    
+                    confidence = self.itemsets_with_counts[itemset] / self.itemsets_with_counts[item]
+                    if confidence >= min_confidence:
+                        rules.append((antecedent, consequent, confidence))
+        return rules
 
     
 
@@ -97,9 +111,11 @@ if __name__ == '__main__':
     from apriori import Apriori
 
     data = TransactionDataset(transactions)
-    apriori = Apriori(2,data)
+    apriori = Apriori(0.5,data)
     result = apriori.fit()
     print(result)
+    rules = apriori.generate_association_rules(0.4)
+
 
     
     
