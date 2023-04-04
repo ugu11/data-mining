@@ -1,63 +1,141 @@
-from itertools import combinations
-from collections import defaultdict
-
 class TransactionDataset:
+    """
+    Class TransactionDataset 
+
+    Parameters
+    ----------
+    transactions: Dataset
+        The dataset with the transactions
+    
+    Attributes
+    ----------
+    items: list of tuples
+        It stores the candidate items in each transaction
+        Each tuple stores the item and its frequency, (item, frequency)
+    """
 
     def __init__(self, transactions):
-        self.transactions = transactions
-        self.items = self._get_items()
-        self.itemsets_with_counts = []
+        """
+        Class TransactionDataset 
+        
+        Parameters
+        ----------
+        transactions: Dataset
+            The dataset with the transactions
+        """
 
-    # Método para obter itens únicos em todas as transações
+        #parameters
+        self.transactions = transactions
+
+        #attributes
+        self.items = self._get_items()
+
     def _get_items(self):
-        items = {}
+        """
+        Obtains the unique items and their frequency in all transactions
+
+        Returns
+        -------
+        sorted_items: list of tuples
+            List of tuplest with the candidate itemsets in all transactions, where each tuple stores a item and its frequency
+        """
+        items = {} # key - item , value - count
         for transaction in self.transactions:
             for item in transaction:
                 if item in items:
                     items[item] += 1
                 else:
                     items[item] = 1
-        sorted_items_aux = sorted(items.items(), key=lambda x: x[1], reverse=True)
-        # print(sorted_items_aux)
-        # sorted_items = [item[0] for item in sorted_items_aux]
-        # print(sorted_items)
+        sorted_items = sorted(items.items(), key=lambda x: x[1], reverse=True)
         
-        return sorted_items_aux
+        return sorted_items
 
 
 class Apriori:
+    """
+    Apriori Algorithm 
+
+    Parameters
+    ----------
+    minsup: float
+        Minimum support          
+    transaction_dataset : TransactionDataset
+        Instance of class TransactionDataset
+    
+    Attributes
+    ----------
+    itemsets_with_counts: dict, where the key is the itemset and the value is the itemset's frequency
+        It stores all the frequent itemsets and their frequency
+    """
 
     def __init__(self, minsup, transaction_dataset):
+        """
+        Apriori Algorithm 
+
+        Parameters
+        ----------
+        minsup: float
+            Minimum support          
+        transaction_dataset : TransactionDataset
+            Instance of class TransactionDataset
+        """
+        #parameters
         self.minsup = minsup
         self.transaction_dataset = transaction_dataset
+
+        #attributes
         self.itemsets_with_counts = {}
 
     def fit(self):
+        """
+        Calculates the frequent itemsets
 
+        Returns
+        -------
+        itemsets: list
+            It stores all the frequent itemsets
+        """
+        # calculates the frequent itemsets from the first candidates 
         frequent_itemsets = []
-        for itemset, count in self.transaction_dataset.items:
-            #support = count / len(self.transaction_dataset.transactions)
+        for item, count in self.transaction_dataset.items:
             if count / len(self.transaction_dataset.transactions) >= self.minsup:
-                frequent_itemsets.append(itemset)
-                self.itemsets_with_counts[itemset] = self.itemsets_with_counts.get((itemset),count)
-        #print(frequent_itemsets)
+                frequent_itemsets.append(item)
+                self.itemsets_with_counts[item] = self.itemsets_with_counts.get((item),count)
 
+        # stores the first frequent itemsets
         itemsets = []
         for s in frequent_itemsets:
             itemsets.append(s)
 
+        # according to the first ones, it calculates the next frequent itemsets 
         candidate_itemsets = self.calculate_new_frequent_itemsets(frequent_itemsets)
-        #print(candidate_itemsets)
         
+        # according to the previous frequent itemsets, continues to calculate the frequent itemsets
+        # and stores the result
         while candidate_itemsets:
             for candidate in candidate_itemsets:
                 itemsets.append(candidate)
             candidate_itemsets = self.calculate_new_frequent_itemsets(candidate_itemsets)
+        
         return itemsets
     
     def calculate_new_frequent_itemsets(self, frequent_itemsets):
-        #calcular os novos candidatos
-        candidates_with_counts = {}
+        """
+        Calculates the new frequent itemsets of size k according to the frequent itemsets of size k-1 received as a parameter
+
+        Parameters
+        ----------
+        frequent_itemsets: list
+                The frequent itemsets of size k-1 
+
+        Returns
+        -------
+        new_frequent_itemsets: list
+            It stores all the new frequent itemsets of size k
+        """
+        candidates_with_counts = {} # key - itemset , value - count
+
+        # calculates the new candidates
         candidates = []
         for i, itemset1 in enumerate(frequent_itemsets):
                 for itemset2 in frequent_itemsets[i+1:]:
@@ -69,24 +147,37 @@ class Apriori:
                     if union not in candidates:
                         candidates.append(union)
 
-        # contar o número de candidatos
+        # Count all candidates
         for transaction in self.transaction_dataset.transactions:
-            for item in candidates:
-                if all(x in transaction for x in item): #verifica se todos os elementos de item estão presentes em transaction
-                     candidates_with_counts[tuple(item)] = candidates_with_counts.get(tuple(item),0)
-                     candidates_with_counts[tuple(item)] += 1
+            for itemset in candidates:
+                if all(x in transaction for x in itemset): # verifires if all the itemset element's are present in the transaction
+                     candidates_with_counts[tuple(itemset)] = candidates_with_counts.get(tuple(itemset),0)
+                     candidates_with_counts[tuple(itemset)] += 1
 
         #falta colocar o codigo que ve se os novos candidatos contam
 
+        # calculates the new frequent itemsets 
         new_frequent_itemsets = []
         for itemset, count in candidates_with_counts.items():
-            #if count >= self.minsup:
-            if count / len(self.transaction_dataset.transactions) >= self.minsup:
+            if count / len(self.transaction_dataset.transactions) >= self.minsup: # Only keep candidates with minimum support 
                 new_frequent_itemsets.append(itemset)
                 self.itemsets_with_counts[itemset] = self.itemsets_with_counts.get((itemset),count)
         return new_frequent_itemsets
     
     def generate_association_rules(self, min_confidence):
+        """
+        Generates association rules
+
+        Parameters
+        ----------
+        min_confidence: float
+                minimum confidence
+
+        Returns
+        -------
+        rules: list of tuples
+            Each tuple stores the antecedent, consequent, support and confidence of the rule
+        """
         rules = []
         for itemset, support in self.itemsets_with_counts.items():
             if len(itemset) > 1:
@@ -95,7 +186,7 @@ class Apriori:
                     consequent = set(x for x in itemset if x not in antecedent)    
                     confidence = self.itemsets_with_counts[itemset] / self.itemsets_with_counts[item]
                     if confidence >= min_confidence:
-                        rules.append((antecedent, consequent, confidence))
+                        rules.append((antecedent, consequent, support, confidence))
         return rules
 
     
@@ -113,7 +204,7 @@ if __name__ == '__main__':
     data = TransactionDataset(transactions)
     apriori = Apriori(0.5,data)
     result = apriori.fit()
-    print(result)
+    print("Itemsets: ", result)
     rules = apriori.generate_association_rules(0.4)
 
 
