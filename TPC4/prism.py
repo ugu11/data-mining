@@ -3,6 +3,13 @@ from dataset import Dataset
 from typing import Tuple, List
 
 class Prism:
+    """
+    Class Prism 
+
+    Attributes
+    ----------
+    rules: list of rules infered from the training dataset
+    """
     def __init__(self):
         pass
 
