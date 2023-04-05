@@ -4,9 +4,20 @@ import sys
 from dataset import Dataset
 from scipy import stats
 from sklearn import feature_selection
+from typing import Tuple
 
-def f_regression(dataset: Dataset) -> Union[Tuple[np.ndarray, np.ndarray],
-                                                Tuple[float, float]]:
+def f_regression(dataset: Dataset) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    F-regression with linear regression to calculate the p-values
+    -------
+    dataset: Dataset
+        dataset used to calculate the p-values
+    -------
+    F: numpy.ndarray
+        F statistics
+    p: numpy.ndarray
+        p-values
+    """
     X = dataset.X
     y = dataset.y
     n_samples = X.shape[0]
@@ -32,7 +43,6 @@ def f_regression(dataset: Dataset) -> Union[Tuple[np.ndarray, np.ndarray],
 if __name__ == '__main__':
     dataset = Dataset('data_cachexia.csv')
     print(dataset.X.shape, dataset.y.shape)
-    f, p = f_regression(dataset)
-    fr, pr = feature_selection.f_regression(dataset.X, dataset.y)
-    print("=>", f)
+    p = f_regression(dataset)
+    _, pr = feature_selection.f_regression(dataset.X, dataset.y)
     print("=>", p)

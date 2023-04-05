@@ -15,12 +15,10 @@ class SelectKBest:
 
         self.score_func = score_func
         self.k = k
-        self.F = None
         self.p = None
 
     def fit(self, dataset: Dataset) -> 'SelectKBest':
-        self.F, self.p = self.score_func(dataset)
-        return self
+        _, self.p = self.score_func(dataset)
 
     def transform(self, dataset: Dataset) -> Dataset:
         indexsK = self.p.argsort()[:self.k]
@@ -38,7 +36,8 @@ if __name__ == '__main__':
     from dataset import Dataset
     dataset = Dataset('data_cachexia.csv')
     selector = SelectKBest(3, score_func=f_regression)
-    selector = selector.fit(dataset)
+    selector.fit(dataset)
     new_data = selector.transform(dataset)
     print(new_data)
     print(new_data.X, new_data.feature_names)
+    print(dataset.get_feature(new_data.feature_names))
