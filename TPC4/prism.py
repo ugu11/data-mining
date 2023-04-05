@@ -1,6 +1,6 @@
 import numpy as np
 from dataset import Dataset
-from typing import Tuple, Sequence, List
+from typing import Tuple, List
 
 class Prism:
     def __init__(self):
@@ -33,19 +33,7 @@ class Prism:
                 l_idx = y == label
                 if np.sum(l_idx) == 0:
                     break
-                # subset = X[l_idx == True]
-
-                # # Build first probabilities table
-                # probability_table_1 = self.__build_single_probability_table(dataset, X, subset)
-                # best_feature_1pt, best_val_1pt = self.__get_best_feature(probability_table_1, dataset)
-
-                # # Get new subset
-                # subset = subset[subset.T[best_feature_1pt] == best_val_1pt]
-
-                # # Build second probabilities table with pairs of features
-                # probability_table_2 = self.__build_single_probability_table(dataset, X, subset, best_feature_1pt, best_val_1pt)
-                # best_feature_2pt, best_val_2pt = self.__get_best_feature(probability_table_2, dataset)
-
+                
                 best_feature_1pt, best_feature_2pt = self.__get_best_features(X, l_idx, dataset)
 
                 # Create and append new rule
@@ -71,22 +59,27 @@ class Prism:
         -------
         numpy.ndarray (n_samples)
         """
-        output = []
-        # for x in X:
-        outcomes = []
-        for rule in self.rules:
-            rule_idxs = rule[:-1] != -1
-            rule_matches = X[rule_idxs] == rule[:-1][rule_idxs]
-            rule_matches = bool(np.multiply.reduce(rule_matches))
+        outputs = []
 
-            if rule_matches:
-                outcomes.append(rule[-1])
+        if len(X.shape) == 0:
+            X = np.expand_dims(X, axis=0)
 
-        values, counts = np.unique(np.array(outcomes), return_counts=True)
-        #display value with highest frequency
-        most_frequent = values[counts.argmax()] 
+        for x in X:
+            outcomes = []
+            for rule in self.rules:
+                rule_idxs = rule[:-1] != -1
+                rule_matches = x[rule_idxs] == rule[:-1][rule_idxs]
+                rule_matches = bool(np.multiply.reduce(rule_matches))
 
-        return most_frequent
+                if rule_matches:
+                    outcomes.append(rule[-1])
+
+            values, counts = np.unique(np.array(outcomes), return_counts=True)
+            # display value with highest frequency
+            most_frequent = values[counts.argmax()] 
+            outputs.append(most_frequent)
+
+        return np.array(outputs)
 
     def __get_best_features(self, X: np.ndarray, l_idx: int, dataset: Dataset) -> Tuple[Tuple[int, int], Tuple[int, int]]:
         """
@@ -100,7 +93,6 @@ class Prism:
             Dataset object being used
         -------
         Tuple[Tuple[int, int], Tuple[int, int]]
-            Tuple of features. Each feature has the index of the feature in the dataset (int) and the value of the feature (int).
         """
         subset = X[l_idx == True]
 
@@ -216,6 +208,10 @@ if __name__ == '__main__':
     d = Dataset('teste.csv')
     p = Prism()
     p.fit(d)
-    pred = p.predict(np.array([2, 1, 0, 1]))
+    pred = p.predict(np.array([
+        [2, 1, 0, 1],
+        [1, 0, 0, 1],
+        [1, 1, 2, 0]
+    ]))
     print("Prediction:", pred)
     print(p)
