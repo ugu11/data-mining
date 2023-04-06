@@ -8,106 +8,187 @@ class NaiveBayes:
 
     Parameters
     ----------
-    classes : np.array, default=None
-        Unique class values
 
     Attributes
     ----------
-    values_per_classes :
-        Stores arrays of input data for each class
+    classes : list
+        Unique class values
 
-    prior :
+    values_per_class : list
+        Stores np.arrays of input data for each class
+
+    prior : list
         Stores the priori probabilities for each class
 
-    summaries : 
-        Stores the mean and standard deviation for each atribute per class 
+    summaries : list of list's of tuples
+        Each tuple stores the mean and standard deviation for each atribute per class.
+        Each list element is a list that stores the tuples calculated within a class. 
+        That is, each list of tuples pertains to a class, and then we store these lists for each class in a list.
     """
 
-    def __init__(self, classes = None):
+    def __init__(self, use_logarithm = False):
         """
         Naive Bayes 
 
         Parameters
         ----------
-        classes : np.array, default=None
-            Unique class values
+         default=None
 
         Attributes
         ----------
-        values_per_classes :
-            Stores arrays of input data for each class
+        classes : list
+            Unique class values
 
-        prior :
+        values_per_class : list
+            Stores np.arrays of input data for each class. 
+            Each element in the list is an np.array
+
+        prior : list
             Stores the priori probabilities for each class
 
-        summaries : 
-            Stores the mean and standard deviation for each atribute per class 
+        summaries : list of list of tuples
+            Each tuple stores the mean and standard deviation for each atribute per class.
+            Each list element is a list that stores the tuples calculated within a class. 
+            That is, each list of tuples pertains to a class, and then we store these lists for each class in a list.
         """
-        self.classes = classes  # valores únicos de classe
-        self.values_per_class = []  # lista para armazenar arrays de dados de entrada para cada classe
-        self.prior = []  # lista para armazenar as probabilidades a priori para cada classe
+        self.classes = None 
+        self.values_per_class = []  
+        self.prior = []  
         self.summaries = []
+        self.use_logarithm = use_logarithm
 
-    # divide os dados de entrada por classe
     def fit(self,X,y):
         """
-        I splits the data per class
+        Splits the data per class, and calculates the a priori probabilities for each class.
 
-        Args:
-            X (_type_): _description_
-            y (_type_): _description_
+        Attributes
+        ----------
+        X : Dataset
+
+        y : numpy.ndarray (n_samples, 1)
+            Dataset label
         """
         self.classes = np.unique(y) 
-        print(self.classes)
-        # itera através de cada valor de classe, extrai os dados de entrada correspondentes e os adiciona a values_per_class
-        # e calcula as probabilidades a priori para cada classe
+
+        # iterates through each class value, extracts the corresponding input data and adds it to values_per_class 
+        # and calculates the a priori probabilities for each class
         for class_value in self.classes:
             X_values = X[y == class_value]
             self.values_per_class.append(X_values)
 
-            class_count = X_values.shape[0]  # número de amostras na classe atual
+            class_count = X_values.shape[0]  #  number of samples in the current class
             class_prior = class_count / X.shape[0]  
             self.prior.append(class_prior)  
 
         self.summarize()
 
-        
-    # calcula a média de cada atributo para uma classe
     def mean(self, values):
+        """
+        Calculates the average for each attribute values, received as a parameter, from a class.
+
+        Parameters
+        ----------
+        values : tuple
+           Stores the attribute values from a class
+
+        Returns
+        -------
+        The average of the values received as a parameter
+        """
         return sum(values) / float(len(values))
 
-    # calcula o desvio padrão de cada atributo para uma classe
     def stdev(self, values, alpha=1):
+        """
+        Calculates the standard deviation for each attribute values, received as a parameter, from a class.
+
+        Parameters
+        ----------
+        values : tuple
+           Stores the attribute values from a class
+
+        Returns
+        -------
+        The standard deviation of the values received as a parameter
+        """         
         return np.var(np.array(values)) + alpha
         #avg = self.mean(values)
         #variance = sum([(x - avg) ** 2 for x in values]) / float(len(values) - 1)
         #return sqrt(variance)
 
-    # resumo(media e desvio padrão) de cada atributo por classe
     def summarize(self):
+        """
+        Summarizes(the standard deviation and average) for each attribute in the class.
+        """         
         for class_values in self.values_per_class:
             self.summaries.append([(self.mean(attribute), self.stdev(attribute)) for attribute in zip(*class_values)])
 
-     # calcula a probabilidade de um valor 
     def calculate_probability(self, x, mean, stdev):
+        """
+        Calculates the probability of a value for an attribute
+
+        Parameters
+        ----------
+        x : value           
+        
+        mean : float
+            Average of the attribute to which the value belongs
+
+        stdev : float
+            Standard deviation of the attribute to which the value belongs
+
+        Returns
+        -------
+        The probability of the value
+        """         
         exponent = exp(-((x - mean) ** 2 / (2 * stdev ** 2)))
         return (1 / (sqrt(2 * pi) * stdev)) * exponent
 
-    # calcula a probabilidade de um vetor de entrada pertencer a cada classe
+ 
     def calculate_class_probabilities(self, input_vetor):
+        """
+        Calculates the probability that an input vector belongs to each class.
+
+        Parameters
+        ----------
+        input_vetor : list
+           Stores an entry from the dataset
+
+        Returns
+        -------
+        probabilities : np.array of shape (n_samples,n_features)
+            In the matrix, each index corresponds to a class, and is a array that stores the probability that 
+            an input vector belongs to that class
+        """          
         probabilities = np.zeros(shape=(len(self.summaries), len(input_vetor)))
-        for idx, classe in enumerate(self.summaries):
+        for idx, classe in enumerate(self.summaries): 
             for feature in range(len(classe)):
+                # to each value in the input vector, we are going to calcule his probability according to the attribute he belongs to
                 probabilities[idx][feature] = 1
                 mean = classe[feature][0]
                 stdev = classe[feature][1]
                 x = input_vetor[feature]
                 probabilities[idx][feature] *= self.calculate_probability(x, mean, stdev)
+        print(probabilities)
+        print("-----------------------")
         return probabilities
 
     def predict(self,X):
+        """
+        Calculates the probabilities of each class. makes the class prediction
+        Makes the class prediction for each entry in the dataset
+
+        Parameters
+        ----------
+        X : Dataset
+
+        Returns
+        -------
+        predicitons : np.array of shape (n_samples)
+            A array with the predicted class for each entry in the dataset
+        """         
         predictions = np.zeros(shape=(X.shape[0]))
         for i, x in enumerate(X):
+            # it calculates the probability that an input vector belongs to each class and returns the class with the highest probability.
             results = []
             probabilities = self.calculate_class_probabilities(np.array(x))
             for j, label in enumerate(self.classes):
@@ -115,9 +196,7 @@ class NaiveBayes:
                 class_conditional = np.sum(np.log(probabilities[j]))
                 result = prior + class_conditional
                 results.append(result)
-            #print("results:", results)
             predictions[i] = self.classes[np.argmax(results)]
-        print(predictions)
         return predictions
 
 
@@ -128,7 +207,5 @@ if __name__ == '__main__':
     data = Dataset('teste.csv',label='Play Tennis')
     nb = NaiveBayes()
     nb.fit(data.X, data.y)
-    nb.predict(data.X)
-    
-
-
+    predictions = nb.predict(data.X)
+    print(predictions)
