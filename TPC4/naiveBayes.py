@@ -36,6 +36,7 @@ class NaiveBayes:
         ----------
         use_logarithm : bool, default=False
             True if logarithms are to be used in the calculation of the naive bayes algorithm
+            
         Attributes
         ----------
         classes : list

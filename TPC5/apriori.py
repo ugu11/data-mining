@@ -1,3 +1,5 @@
+import itertools
+
 class TransactionDataset:
     """
     Class TransactionDataset 
@@ -154,7 +156,18 @@ class Apriori:
                      candidates_with_counts[tuple(itemset)] = candidates_with_counts.get(tuple(itemset),0)
                      candidates_with_counts[tuple(itemset)] += 1
 
-        #falta colocar o codigo que ve se os novos candidatos contam
+        # Prune - discard itemsets from Ck+1 that containt non-frequent k itemsets
+        candidates_with_counts_copy = candidates_with_counts.copy()
+        for itemset, count in candidates_with_counts_copy.items():
+            if len(itemset) > 2 :
+                sets = []
+                for comb in itertools.combinations(itemset, len(itemset)-1):
+                    sets.append(tuple(comb))
+                itemset_not_removed = True # False when the itemset has already been removed from the variable candidates_with_counts 
+                for sets_element in sets:
+                    if sets_element not in frequent_itemsets and itemset_not_removed:
+                        del candidates_with_counts[itemset]
+                        itemset_not_removed = False
 
         # calculates the new frequent itemsets 
         new_frequent_itemsets = []
