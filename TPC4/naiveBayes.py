@@ -111,10 +111,7 @@ class NaiveBayes:
         The standard deviation of the values received as a parameter
         """         
         return np.var(np.array(values)) + alpha
-        #avg = self.mean(values)
-        #variance = sum([(x - avg) ** 2 for x in values]) / float(len(values) - 1)
-        #return sqrt(variance)
-
+    
     def summarize(self):
         """
         Summarizes(the standard deviation and average) for each attribute in the class.
@@ -124,7 +121,7 @@ class NaiveBayes:
 
     def calculate_probability(self, x, mean, stdev):
         """
-        Calculates the probability of a value for an attribute
+        Calculates the probability of a value for an attribute. Uses the Gaussian probability density function
 
         Parameters
         ----------
@@ -139,10 +136,9 @@ class NaiveBayes:
         Returns
         -------
         The probability of the value
-        """         
-        exponent = exp(-((x - mean) ** 2 / (2 * stdev ** 2)))
-        return (1 / (sqrt(2 * pi) * stdev)) * exponent
-
+        """    
+        eps = 1e-4
+        return (1 / sqrt(2 * pi * (stdev + eps))) * exp(-((x - mean)**2 )/ (2 * (stdev + eps)))
  
     def calculate_class_probabilities(self, input_vetor):
         """
@@ -168,13 +164,11 @@ class NaiveBayes:
                 stdev = classe[feature][1]
                 x = input_vetor[feature]
                 probabilities[idx][feature] *= self.calculate_probability(x, mean, stdev)
-        print(probabilities)
-        print("-----------------------")
         return probabilities
 
     def predict(self,X):
         """
-        Calculates the probabilities of each class. makes the class prediction
+        Calculates the probabilities of each class. 
         Makes the class prediction for each entry in the dataset
 
         Parameters
@@ -192,10 +186,16 @@ class NaiveBayes:
             results = []
             probabilities = self.calculate_class_probabilities(np.array(x))
             for j, label in enumerate(self.classes):
-                prior = np.log(self.prior[j])
-                class_conditional = np.sum(np.log(probabilities[j]))
-                result = prior + class_conditional
-                results.append(result)
+                if self.use_logarithm:
+                    prior = np.log(self.prior[j])
+                    class_conditional = np.sum(np.log(probabilities[j]))
+                    result = prior + class_conditional
+                    results.append(result)
+                else:
+                    prior = self.prior[j]
+                    class_conditional = np.prod(probabilities[j])
+                    result = prior * class_conditional
+                    results.append(result)
             predictions[i] = self.classes[np.argmax(results)]
         return predictions
 
@@ -205,7 +205,7 @@ if __name__ == '__main__':
     from naiveBayes import NaiveBayes
 
     data = Dataset('teste.csv',label='Play Tennis')
-    nb = NaiveBayes()
+    nb = NaiveBayes(use_logarithm=False)
     nb.fit(data.X, data.y)
     predictions = nb.predict(data.X)
     print(predictions)
