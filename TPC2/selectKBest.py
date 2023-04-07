@@ -7,32 +7,70 @@ from f_classif import f_classif
 from f_regression import f_regression
 
 class SelectKBest:
+    """
+    Select k Best
+
+    Parameters
+    ----------
+    score_func : f_classif or f_regression
+        function for scoring 
+    
+    k : int
+       number of features to select
+
+    Attributes
+    ----------
+    F: numpy.ndarray
+        F statistics
+
+    p : numpy.ndarray
+        p-values
+    """
     def __init__(self, k: int, score_func: Callable = f_classif):
+        """
+        Select k Best
+
+        Parameters
+        ----------
+        score_func : f_classif or f_regression
+            function for scoring 
+        
+        k : int
+            number of features to select
+        """
         if k <= 0:
             raise ValueError("k isn't positive")
 
         self.score_func = score_func
         self.k = k
+        self.F = None
         self.p = None
 
     def fit(self, dataset: Dataset) -> 'SelectKBest':
         """
-        Fit the transformer with a defined scoring function
+        Fit the transformer with a defined scoring function. 
+        In other words, estimates F and p for each feature using the score_func.
+
+        Parameters
         -------
         dataset: Dataset
             The dataset used to fit the transformer
         """
-        _, self.p = self.score_func(dataset)
+        self.F, self.p = self.score_func(dataset)
 
     def transform(self, dataset: Dataset) -> Dataset:
         """
-        Select the best K features of the given dataset
+        Selects the k features with lowest p-value of the given dataset.
+
+        Parameters
         -------
         dataset: Dataset
             The dataset being transformed
+
+        Returns
         -------
         transformed_data: Dataset
-            The transformed dataset with the K best features
+            The transformed dataset with the K features with lowest p-value
         """
         indexsK = self.p.argsort()[:self.k]
         features = np.array(dataset.feature_names)[indexsK]
@@ -43,10 +81,14 @@ class SelectKBest:
 
     def fit_transform(self, dataset: Dataset) -> Dataset:
         """
-        Fit to the given dataset and transform it
+        Runs fit and transform over the same data.
+
+        Parameters
         -------
         dataset: Dataset
             The dataset being transformed
+
+        Returns
         -------
         transformed_data: Dataset
             The transformed dataset with the K best features
@@ -57,10 +99,11 @@ class SelectKBest:
     
 if __name__ == '__main__':
     from dataset import Dataset
+    from selectKBest import SelectKBest
+
     dataset = Dataset('data_cachexia.csv')
     selector = SelectKBest(3, score_func=f_regression)
     selector.fit(dataset)
     new_data = selector.transform(dataset)
-    print(new_data)
-    print(new_data.X, new_data.feature_names)
-    print(dataset.get_feature(new_data.feature_names))
+    print("Features: ", new_data.feature_names, "\n\n", new_data.X, "\n\n")
+    #print(dataset.get_feature(new_data.feature_names))
