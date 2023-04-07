@@ -18,43 +18,22 @@ class Dataset:
         label: str (1)
             The label name
         """
-        # if X is None:
-        #     raise ValueError("X cannot be None")
-
-        # if features is None:
-        #     features = [str(i) for i in range(X.shape[1])]
-        # else:
-        #     features = list(features)
-
-        # if y is not None and label is None:
-        #     label = "y"
-
         self.X = None
         self.y = None
 
         if filename is not None:
             self.readDataset(filename, sep, skip_header)
-        # self.features = features
-        # self.label = label
 
-    def create_dataset(self, X: np.ndarray, y: np.ndarray = None, features: Sequence[str] = None, label: str = None):
-        if X is None:
-            raise ValueError("X cannot be None")
-
-        if features is None:
-            features = [str(i) for i in range(X.shape[1])]
-        else:
-            features = list(features)
-
-        if y is not None and label is None:
-            label = "y"
-
-        self.X = X
-        self.y = y
-        self.feature_names = features
-        self.label = label
-
-    def __get_col_type(self, value):
+    def __get_col_type(self, value) -> str:
+        """
+        Get a column's type: numerical or categorical
+        ----------
+        value
+            Value of an element of that column
+        ----------
+        str
+            Type of the column
+        """
         try:
             arr = np.array([float(value)])
         except ValueError:
@@ -65,7 +44,24 @@ class Dataset:
 
         return None
     
-    def __read_datatypes(self, filename, sep, skip_header):
+    def __read_datatypes(self, filename: str, sep: str, skip_header: int) -> Union[list, list, list]:
+        """
+        Get the features a and their data types
+        ----------
+        filename: string
+            Name of the file being read
+        sep: string
+            Seperator in the csv file
+        skip_header: int
+            Header size to skip
+        ----------
+        feature_names: list
+            Name of each feature
+        numericals: list
+            List of the numerical features
+        categoricals: list
+            List of the categorical features
+        """
         with open(filename) as file:
             if skip_header > 0:
                 feature_names = file.readline().rstrip().split(sep)
@@ -85,7 +81,18 @@ class Dataset:
             
             return feature_names, numericals, categoricals
         
-    def __get_categories(self, data, cols):
+    def __get_categories(self, data: np.ndarray, cols: list) -> dict:
+        """
+        Get the categories of the categorical feature
+        ----------
+        data: numpy.ndarray
+            Matrix with the data of the dataset
+        cols: list
+            List of categorical features
+        ----------
+        categories: dict
+           Available categories for each categorical feature
+        """
         categories = {}
         for c in range(len(cols)):
             col = data.T[c]
@@ -93,7 +100,20 @@ class Dataset:
             categories[c] = np.delete(uniques, uniques == '')
         return categories
         
-    def __label_encode(self, data, categorical_columns):
+    def __label_encode(self, data: np.ndarray, categorical_columns: list) -> Tuple[np.ndarrray, dict]:
+        """
+        Encode categorical features to numerical data
+        ----------
+        data: numpy.ndarray
+            Matrix with the data of the dataset
+        categorical_columns: list
+            List of categorical features
+        ----------
+        enc_data: numpy.ndarray
+            Encoded data
+        categories: dict
+           Available categories for each categorical feature
+        """
         categories = self.__get_categories(data, categorical_columns)
         enc_data = np.full(data.shape, np.nan)
     
@@ -107,6 +127,16 @@ class Dataset:
         return enc_data, categories
 
     def readDataset(self, filename, sep = ",", skip_header=1):
+        """
+        Read the dataset from a csv file
+        ----------
+        filename: string
+            Name of the file being read
+        sep: string
+            Seperator in the csv file
+        skip_header: int
+            Header size to skip
+        """
         feature_names, numericals, categoricals = self.__read_datatypes(filename, sep, skip_header)
             
         n_data = np.genfromtxt(filename, delimiter=sep, usecols=numericals, skip_header=skip_header)
