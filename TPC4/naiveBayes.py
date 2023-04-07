@@ -13,7 +13,7 @@ class NaiveBayes:
 
     Attributes
     ----------
-    classes : list
+    classes : numpy.ndarray
         Unique class values
 
     values_per_class : list
@@ -39,7 +39,7 @@ class NaiveBayes:
             
         Attributes
         ----------
-        classes : list
+        classes : numpy.ndarray
             Unique class values
 
         values_per_class : list
@@ -49,7 +49,7 @@ class NaiveBayes:
         prior : list
             Stores the priori probabilities for each class
 
-        summaries : list of list of tuples
+        summaries : list of lists of tuples
             Each tuple stores the mean and standard deviation for each atribute per class.
             Each list element is a list that stores the tuples calculated within a class. 
             That is, each list of tuples pertains to a class, and then we store these lists for each class in a list.
@@ -77,6 +77,7 @@ class NaiveBayes:
         # and calculates the a priori probabilities for each class
         for class_value in self.classes:
             X_values = X[y == class_value]
+            #print(type(X_values))
             self.values_per_class.append(X_values)
 
             class_count = X_values.shape[0]  #  number of samples in the current class
@@ -84,6 +85,7 @@ class NaiveBayes:
             self.prior.append(class_prior)  
 
         self.summarize()
+
 
     def mean(self, values):
         """
@@ -128,12 +130,13 @@ class NaiveBayes:
 
         Parameters
         ----------
-        x : value           
+        x : float64
+            value           
         
-        mean : float
+        mean : float64
             Average of the attribute to which the value belongs
 
-        stdev : float
+        stdev : float64
             Standard deviation of the attribute to which the value belongs
 
         Returns
@@ -143,18 +146,18 @@ class NaiveBayes:
         eps = 1e-4
         return (1 / sqrt(2 * pi * (stdev + eps))) * exp(-((x - mean)**2 )/ (2 * (stdev + eps)))
  
-    def calculate_class_probabilities(self, input_vetor):
+    def calculate_classes_probabilities(self, input_vetor):
         """
         Calculates the probability that an input vector belongs to each class.
 
         Parameters
         ----------
-        input_vetor : list
+        input_vetor : numpy.ndarray of shape (n_features)
            Stores an entry from the dataset
 
         Returns
         -------
-        probabilities : np.array of shape (n_samples,n_features)
+        probabilities : np.ndarray of shape (n_samples,n_features)
             In the matrix, each index corresponds to a class, and is a array that stores the probability that 
             an input vector belongs to that class
         """          
@@ -172,22 +175,23 @@ class NaiveBayes:
     def predict(self,X):
         """
         Calculates the probabilities of each class. 
-        Makes the class prediction for each entry in the dataset
+        Predicts the class for each entry in the dataset.
 
         Parameters
         ----------
-        X : Dataset
+        X : numpy.ndarray of shape (n_samples, n_features)
+            The feature matrix
 
         Returns
         -------
-        predicitons : np.array of shape (n_samples)
+        predicitons : np.ndarray of shape (n_samples)
             A array with the predicted class for each entry in the dataset
         """         
         predictions = np.zeros(shape=(X.shape[0]))
         for i, x in enumerate(X):
             # it calculates the probability that an input vector belongs to each class and returns the class with the highest probability.
             results = []
-            probabilities = self.calculate_class_probabilities(np.array(x))
+            probabilities = self.calculate_classes_probabilities(np.array(x))
             for j, label in enumerate(self.classes):
                 if self.use_logarithm:
                     prior = np.log(self.prior[j])

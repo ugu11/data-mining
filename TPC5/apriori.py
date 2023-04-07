@@ -30,9 +30,9 @@ class TransactionDataset:
         self.transactions = transactions
 
         #attributes
-        self.items = self._get_items()
+        self.items = self.get_items()
 
-    def _get_items(self):
+    def get_items(self):
         """
         Obtains the unique items and their frequency in all transactions
 
@@ -49,7 +49,6 @@ class TransactionDataset:
                 else:
                     items[item] = 1
         sorted_items = sorted(items.items(), key=lambda x: x[1], reverse=True)
-        
         return sorted_items
 
 
@@ -61,6 +60,7 @@ class Apriori:
     ----------
     minsup: float
         Minimum support          
+
     transaction_dataset : TransactionDataset
         Instance of class TransactionDataset
     
@@ -78,6 +78,7 @@ class Apriori:
         ----------
         minsup: float
             Minimum support          
+
         transaction_dataset : TransactionDataset
             Instance of class TransactionDataset
         """
@@ -118,7 +119,6 @@ class Apriori:
             for candidate in candidate_itemsets:
                 itemsets.append(candidate)
             candidate_itemsets = self.calculate_new_frequent_itemsets(candidate_itemsets)
-        
         return itemsets
     
     def calculate_new_frequent_itemsets(self, frequent_itemsets):
@@ -136,7 +136,6 @@ class Apriori:
             It stores all the new frequent itemsets of size k
         """
         candidates_with_counts = {} # key - itemset , value - count
-
         # calculates the new candidates
         candidates = []
         for i, itemset1 in enumerate(frequent_itemsets):
@@ -214,8 +213,8 @@ if __name__ == '__main__':
     from apriori import TransactionDataset
     from apriori import Apriori
 
-    data = TransactionDataset(transactions)
-    apriori = Apriori(0.5,data)
+    dt = TransactionDataset(transactions)
+    apriori = Apriori(0.5,dt)
     result = apriori.fit()
     print("Itemsets: ", result)
     rules = apriori.generate_association_rules(0.4)
