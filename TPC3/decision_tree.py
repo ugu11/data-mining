@@ -1,7 +1,5 @@
 from dataset import Dataset
-from collections import Counter
-from sklearn.metrics import accuracy_score
-from math import log2, sqrt
+from math import log2
 import numpy as np
 
 class Node:
@@ -14,9 +12,7 @@ class Node:
         self.value = value
         self.error = 0
 
-
 class DecisionTrees:
-
     def __init__(self, max_depth=None, min_samples_split=2, min_samples_leaf=1, criterion='gini'):
         """
         max_depth - the maximun depth of the tree
@@ -32,24 +28,65 @@ class DecisionTrees:
 
         self.tree = None
         
-    def predict(self, X):
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        Make predictions
+        -------
+        X: numpy.ndarray
+            The dataset used to fit the classifier
+        -------
+        numpy.ndarray
+            Predictions for each input given
+        """
         return np.array([self.traverse_tree(x, self.tree) for x in X])
 
-    def traverse_tree(self, x, node):
+    def traverse_tree(self, x: np.ndarray, node: Node):
+        """
+        Make predictions
+        -------
+        x: numpy.ndarray
+            Input to feed the tree
+        node: Node
+            Node of the decision tree
+        -------
+        numpy.ndarray
+            Predictions for each input given
+        """
         if node.leaf:
             return node.value
         
         if x[node.feature] < node.threshold:
-            # if node.left != None:
+            if node.left != None:
                 return self.traverse_tree(x, node.left)
         else:
-            # if node.right != None:
+            if node.right != None:
                 return self.traverse_tree(x, node.right)
 
-    def fit(self, X, y):
+    def fit(self, X: np.ndarray, y: np.ndarray):
+        """
+        Fit the classifier
+        -------
+        X: numpy.ndarray
+            Input to build the tree
+        y: numpy.ndarray
+            Labels for each input
+        """
         self.tree = self.build_tree(X,y,0)
 
-    def build_tree(self, X, y, depth=0):
+    def build_tree(self, X: np.ndarray, y: np.ndarray, depth: int=0) -> Node:
+        """
+        Build the decision tree
+        -------
+        X: numpy.ndarray
+            Input to build the tree
+        y: numpy.ndarray
+            Labels for each input
+        depth: int
+            Max depth for the decision tree
+        -------
+        node: Node
+            New node of the decision tree
+        """
         n_samples, n_features = X.shape
         n_labels = len(np.unique(y))
 
@@ -82,17 +119,21 @@ class DecisionTrees:
         node.left = self.build_tree(X[left_indices], y[left_indices], depth+1)
         node.right = self.build_tree(X[right_indices], y[right_indices], depth+1)
         
-        # Leaf node [FIX]
-        # if not (node.left or node.right):
-        #     preds = self.predict(X)
-        #     node.error = np.sum(preds != y)
-        #     return node.error
-        
-        # self.reduced_error_pruning(X, y, node)
-
         return node
     
-    def find_best_split(self, X, y,n_features):
+    def find_best_split(self, X: np.ndarray, y: np.ndarray, n_features: int):
+        """
+        ...
+        -------
+        X: numpy.ndarray
+            Input to build the tree
+        y: numpy.ndarray
+            Labels for each input
+        n_features: int
+            ...
+        -------
+        ...
+        """
         best_gain = -1
         best_feature = None
         best_threshold = None
@@ -103,7 +144,7 @@ class DecisionTrees:
 
             for threshold in thresholds:
 
-                left_idx, right_idx = self.split(threshold,X,feature_values)
+                left_idx, right_idx = self.split(threshold,feature_values)
 
                 lefty = y[left_idx]
                 righty = y[right_idx]
@@ -120,13 +161,36 @@ class DecisionTrees:
         
         return best_feature, best_threshold
     
-    def split(self,threshold, X, feature):
+    def split(self, threshold, feature):
+        """
+        ...
+        -------
+        threshold: float
+            ...
+        feature: ...
+            ...
+        -------
+        ...
+        """
         left_idx = feature <= threshold
         right_idx = feature > threshold
 
         return left_idx, right_idx
     
-    def apply_criterion(self,criterion,y,feature):
+    def apply_criterion(self, criterion: str, y: np.ndarray, feature) -> float:
+        """
+        Calculate gain with a given criterion function
+        -------
+        criterion: str
+            Criterion functions being used
+        y: numpy.ndarray
+            Labels for the inputs
+        feature: ...
+            ...
+        -------
+        float
+            Calculated gain value
+        """
         if criterion == 'gini':
             return self.gini_index(y)
         elif criterion == 'entropy':
@@ -136,9 +200,17 @@ class DecisionTrees:
         else:
             raise Exception("That criteria doesn't exist") 
            
-
     # Escolha de atributos
-    def entropy(self, y):
+    def entropy(self, y: np.ndarray) -> float:
+        """
+        Calculate entropy
+        -------
+        y: numpy.ndarray
+            Labels for the inputs
+        -------
+        entropy: float
+            Calculated entropy value
+        """
         _, counts = np.unique(y, return_counts=True)
         probabilities = counts / len(y)
         entropy = 0
@@ -146,13 +218,33 @@ class DecisionTrees:
             entropy -= prob * log2(prob)
         return entropy
 
-    def gini_index(self,y):
+    def gini_index(self, y: np.ndarray) -> float:
+        """
+        Calculate gini index
+        -------
+        y: numpy.ndarray
+            Labels for the inputs
+        -------
+        entropy: float
+            Calculated gini index value
+        """
         counts = np.unique(y, return_counts=True)[1]
         proportions = counts / len(y)
         gini = 1 - np.sum(proportions ** 2)
         return gini
 
-    def gain_ratio(self, feature, y):
+    def gain_ratio(self, feature, y: np.ndarray) -> float:
+        """
+        Calculate gain ratio
+        -------
+        feature: ....
+            ....
+        y: numpy.ndarray
+            Labels for the inputs
+        -------
+        entropy: float
+            Calculated gain ratio value
+        """
         n = len(y)
         values, counts = np.unique(feature, return_counts=True)
         initial_entropy = self.entropy(y)
@@ -163,11 +255,16 @@ class DecisionTrees:
             information_gain -= (count / n) * self.entropy(subset_labels)
         return information_gain / split_information if split_information != 0 else 0
 
-    # Resolução de conflitos
-    def __prune(self):
-        pass
-
-    def majority_voting(self,y):
+    def majority_voting(self, y: np.ndarray) :
+        """
+        Apply majority voting for ....
+        -------
+        y: numpy.ndarray
+            Labels for the inputs
+        -------
+        most_common: ...
+            ...
+        """
         values = {}
         for value in y:
             if value in values:
@@ -182,34 +279,21 @@ class DecisionTrees:
                 most_common = value
         return most_common
 
-    #Pre-pruning
-    def independence_pre_pruning(self):
-        pass
-
-    def reduced_error_pruning(self, X, y, node):
-        error_true = self.reduced_error_pruning(X, y, node.left)
-        error_false = self.reduced_error_pruning(X, y, node.right)
-
-        # Prune its subnode if it has less error
-        if node.error <= error_true + error_false:
-            node.left = None
-            node.right = None
-            return node.error
-        else:
-            return error_true + error_false
-
-    def score(self, X, y):
-            return np.mean(X == y)
+    def score(self, X: np.ndarray, y: np.ndarray) -> float:
+        """
+        Calculate score
+        -------
+        X: numpy.ndarray
+            Inputs
+        y: numpy.ndarray
+            Labels for the inputs
+        -------
+        score: float
+            Score
+        """
+        return np.mean(X == y)
     
-    
-
 if __name__ == '__main__':
-    from dataset import Dataset
-    from decision_tree import DecisionTrees
-    from sklearn.tree import DecisionTreeClassifier
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import accuracy_score
-
     data = Dataset('teste.csv',label='Play Tennis')
     # print(data.X)
     # print(data.y)
