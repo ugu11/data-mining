@@ -1,6 +1,8 @@
 from dataset import Dataset
 from math import log2
 import numpy as np
+from dataset import Dataset
+from sklearn.model_selection import train_test_split
 
 class Node:
     def __init__(self, feature = None, threshold = None, left = None, right = None, leaf = False, value = None):
@@ -27,6 +29,25 @@ class DecisionTrees:
         self.criterion = criterion
 
         self.tree = None
+
+    def __repr__(self):
+        return self.__get_repr(self.tree, 0)
+
+    def __get_repr(self, node, depth):
+        if node == None: return "[ None ]"
+        # txt_data = f'[ Depth: {depth} [{node.feature}] - Threshold: {node.threshold}; Value: {node.value}; Leaf: {node.leaf} ]\n'
+
+        if node.leaf:
+            txt_data = f'{{ [ LEAF ] - Class: {self.categories[len(self.features)][int(node.value)]} }}\n'
+        else:
+            txt_data = f'{{ [ NODE ] - Threshold: {node.threshold}; Feature: {self.features[node.feature]} }}\n'
+        
+        if node.left != None:
+            txt_data += ''.join(['  '] * depth) +  'L - ' + self.__get_repr(node.left, depth+1)
+        if node.right != None:
+            txt_data += ''.join(['  '] * depth) +  'R - ' + self.__get_repr(node.right, depth+1)
+
+        return txt_data
         
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -62,16 +83,17 @@ class DecisionTrees:
             if node.right != None:
                 return self.traverse_tree(x, node.right)
 
-    def fit(self, X: np.ndarray, y: np.ndarray):
+    def fit(self, dataset: Dataset):
         """
         Fit the classifier
         -------
-        X: numpy.ndarray
-            Input to build the tree
-        y: numpy.ndarray
-            Labels for each input
+        dataset: Dataset
+            Dataset for training
         """
-        self.tree = self.build_tree(X,y,0)
+        X, y = dataset.X, dataset.y
+        self.features = dataset.feature_names
+        self.categories = dataset.categories
+        self.tree = self.build_tree(X, y, 0)
 
     def build_tree(self, X: np.ndarray, y: np.ndarray, depth: int=0) -> Node:
         """
@@ -302,7 +324,8 @@ if __name__ == '__main__':
     # print(X_train)
     # print(y_train)
     clf = DecisionTrees(max_depth=6,criterion='gain')
-    clf.fit(X_train, y_train)
+    # clf.fit(X_train, y_train)
+    clf.fit(data)
     y_pred = clf.predict(X_test)
     # accuracy = clf.score(y_test, y_pred)
     # print(accuracy)
@@ -313,6 +336,7 @@ if __name__ == '__main__':
     print(aux)
     entropy = clf.entropy(aux)
     print(entropy)
+    print(clf)
 
     # clf2 = DecisionTreeClassifier(max_depth=6)
     # clf2.fit(X_train, y_train)
