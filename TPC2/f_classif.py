@@ -9,9 +9,13 @@ from sklearn import feature_selection
 def f_classif(dataset: Dataset) -> Tuple[np.ndarray, np.ndarray]:
     """
     F-classif to calculate the F statistics and p-values
+
+    Parameters
     -------
     dataset: Dataset
         dataset used to calculate the p-values
+
+    Returns
     -------
     valuesF: numpy.ndarray
         F statistics
@@ -37,8 +41,11 @@ def f_classif(dataset: Dataset) -> Tuple[np.ndarray, np.ndarray]:
 
 if __name__ == '__main__':
     dataset = Dataset('data_cachexia.csv')
-    print(dataset.X.shape, dataset.y.shape)
+    #print(dataset.X.shape, dataset.y.shape)
     f, p = f_classif(dataset)
     fr, pr = feature_selection.f_classif(dataset.X, dataset.y)
-    print("=>", f, fr)
-    print("=>", p, pr)
+    print((f, p))
+    #print(f)
+    #print(p)
+    #print("=>", f, fr)
+    #print("=>", p, pr)
