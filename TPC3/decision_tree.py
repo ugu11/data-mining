@@ -51,6 +51,17 @@ class DecisionTrees:
     
     min_samples_split: int, default=2
         The minimum number of samples required to split an internal node
+    
+    Attributes
+    ----------
+    features : list of str (n_features)
+        The feature names
+
+    categories : dict
+        Available categories for each categorical feature
+
+    tree: Node
+        Tree root
     """
     def __init__(self, dataset, max_depth=None, min_samples_split=2, criterion='gini'):
         """
@@ -86,9 +97,31 @@ class DecisionTrees:
         self.tree = None
 
     def __repr__(self):
+        """
+        Prints the tree in text mode
+
+        Returns
+        -------
+        The tree printed in text mode
+        """
         return self.__get_repr(self.tree, 0)
 
     def __get_repr(self, node, depth):
+        """
+        Prints the tree in text mode
+
+        Parameters
+        ----------
+        node: Node
+            Tree root
+        
+        depth: int
+            Depth of the tree
+
+        Returns
+        -------
+        The tree printed in text mode
+        """
         if node == None: return "[ None ]"
         # txt_data = f'[ Depth: {depth} [{node.feature}] - Threshold: {node.threshold}; Value: {node.value}; Leaf: {node.leaf} ]\n'
 
@@ -433,6 +466,7 @@ if __name__ == '__main__':
     clf = DecisionTrees(data,max_depth=6,criterion='entropy')
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
+    print(clf)
     print("Predictions: ", y_pred)
     accuracy = clf.score(y_test, y_pred)
     print("accuracy",accuracy)
