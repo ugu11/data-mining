@@ -18,17 +18,6 @@ class Dataset:
         label: str (1)
             The label name
         """
-        # if X is None:
-        #     raise ValueError("X cannot be None")
-
-        # if features is None:
-        #     features = [str(i) for i in range(X.shape[1])]
-        # else:
-        #     features = list(features)
-
-        # if y is not None and label is None:
-        #     label = "y"
-
         self.X = None
         self.y = None
 
@@ -43,8 +32,7 @@ class Dataset:
         
         if type(label) != type(None):
             self.label = label
-        # self.features = features
-        # self.label = label
+
 
     def __get_col_type(self, value):
         try:
