@@ -8,6 +8,6 @@
 
 * TPC3 => Decision trees for classification tasks
 
-* TPC4 => Algoritmo e Naive Bayes e Prism
+* TPC4 => Algoritmo Naive Bayes e Prism
 
 * TPC5 => Algoritmo Apriori
