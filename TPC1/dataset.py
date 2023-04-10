@@ -1,4 +1,5 @@
 from typing import Tuple, Sequence
+from typing import Union
 
 import numpy as np
 
@@ -7,6 +8,7 @@ class Dataset:
     def __init__(self, filename = None, sep=',', skip_header=1):
         """
         Dataset represents a machine learning tabular dataset.
+
         Parameters
         ----------
         X: numpy.ndarray (n_samples, n_features)
@@ -27,9 +29,13 @@ class Dataset:
     def __get_col_type(self, value) -> str:
         """
         Get a column's type: numerical or categorical
+
+        Parameters
         ----------
         value
             Value of an element of that column
+        
+        Returns
         ----------
         str
             Type of the column
@@ -47,6 +53,8 @@ class Dataset:
     def __read_datatypes(self, filename: str, sep: str, skip_header: int) -> Union[list, list, list]:
         """
         Get the features a and their data types
+
+        Parameters
         ----------
         filename: string
             Name of the file being read
@@ -54,6 +62,8 @@ class Dataset:
             Seperator in the csv file
         skip_header: int
             Header size to skip
+
+        Returns
         ----------
         feature_names: list
             Name of each feature
@@ -84,11 +94,15 @@ class Dataset:
     def __get_categories(self, data: np.ndarray, cols: list) -> dict:
         """
         Get the categories of the categorical feature
+
+        Parameters
         ----------
         data: numpy.ndarray
             Matrix with the data of the dataset
         cols: list
             List of categorical features
+
+        Returns
         ----------
         categories: dict
            Available categories for each categorical feature
@@ -100,14 +114,18 @@ class Dataset:
             categories[c] = np.delete(uniques, uniques == '')
         return categories
         
-    def __label_encode(self, data: np.ndarray, categorical_columns: list) -> Tuple[np.ndarrray, dict]:
+    def __label_encode(self, data: np.ndarray, categorical_columns: list) -> Tuple[np.ndarray, dict]:
         """
         Encode categorical features to numerical data
+
+        Parameters
         ----------
         data: numpy.ndarray
             Matrix with the data of the dataset
         categorical_columns: list
             List of categorical features
+
+        Returns
         ----------
         enc_data: numpy.ndarray
             Encoded data
@@ -128,7 +146,9 @@ class Dataset:
 
     def readDataset(self, filename, sep = ",", skip_header=1):
         """
-        Read the dataset from a csv file
+        Read the dataset from a csv file.
+
+        Parameters
         ----------
         filename: string
             Name of the file being read
@@ -138,7 +158,7 @@ class Dataset:
             Header size to skip
         """
         feature_names, numericals, categoricals = self.__read_datatypes(filename, sep, skip_header)
-            
+
         n_data = np.genfromtxt(filename, delimiter=sep, usecols=numericals, skip_header=skip_header)
         c_data = np.genfromtxt(filename, delimiter=sep, dtype='U', usecols=categoricals, skip_header=skip_header)
         if len(c_data.shape) == 1:
@@ -163,7 +183,6 @@ class Dataset:
 
         self.X = self.data[:,0:-1]
         self.y = self.data[:,-1]
-
 
     def shape(self) -> Tuple[int, int]:
         """
@@ -241,10 +260,21 @@ class Dataset:
 
     def replace_missing_values(self, replaceby, feature_index) -> np.ndarray:
         """
-        Returns the missing values replaced by the median
+        Returns the dataset with a certain feature with its missing values replaced by the mode or the mean.
+        
+        Parameters
+        ----------
+        replaceby : str
+            Indicates if the missing values will be replaced  
+            by mode or average
+        
+        feature_index: int
+            Indicates the feature that contains the missing values to be replaced
+        
         Returns
         -------
-        numpy.ndarray (n_features)
+        filled_dataset: numpy.ndarray (n_features)
+            The dataset with the missing values replaced
         """
         if self.X.shape[1] > feature_index:                
             feature_values = self.X[:, feature_index]
@@ -269,12 +299,19 @@ class Dataset:
 
     def replace_missing_values_dataset(self, replaceby) -> np.ndarray:
         """
-        Returns the missing values replaced by the median in all dataset
+        Returns all the missing values replaced by the mode or the mean, in all dataset
+
+        Parameters
+        ----------
+        replaceby : str
+            Indicates if the missing values will be replaced  
+            by mode or average
+
         Returns
         -------
-        numpy.ndarray (n_features)
+        self.X: numpy.ndarray (n_features)
+            The dataset with all the missing values replaced
         """
-        #print(len(self.feature_names))
         for feature_index in range(len(self.feature_names)): 
             feature_values = self.X[:, feature_index]   
             if replaceby == 'mode':
@@ -295,6 +332,12 @@ class Dataset:
     def get_feature(self, feature_index) -> np.ndarray:
         """
         Returns the specified feature from the dataset
+
+        Parameters
+        ----------
+        feature_index: int
+            Feature index
+        
         Returns
         -------
         numpy.ndarray (n_features)
@@ -307,6 +350,12 @@ class Dataset:
     def get_line(self, line_index) -> np.ndarray:
         """
         Returns the specified line from the dataset
+        
+        Parameters
+        ----------
+        line_index: int
+            index line of teh dataset
+
         Returns
         -------
         numpy.ndarray (n_features)
@@ -319,6 +368,15 @@ class Dataset:
     def get_value(self, line_index, feature_index) -> np.ndarray:
         """
         Returns the specified value from the dataset
+        
+        Parameters
+        ----------
+        line_index: int
+            index line of the value in the dataset
+
+        feature_index: int
+            Feature index of the value
+        
         Returns
         -------
         numpy.ndarray (n_features)
@@ -330,7 +388,19 @@ class Dataset:
 
     def set_value(self, line_index, feature_index, new_value) -> np.ndarray:
         """
-        Returns a dataset with the new value 
+        Returns the dataset with the new value.
+        
+        Parameters
+        ----------
+        line_index: int
+            index line of the value in the dataset
+
+        feature_index: int
+            Feature index of the value
+
+        new_value: int
+            New value
+        
         Returns
         -------
         numpy.ndarray (n_features)
@@ -344,6 +414,7 @@ class Dataset:
     def count_missing_values(self) -> np.ndarray:
         """
         Returns the number of missing values in a dataset.
+        
         Returns
         -------
         numpy.ndarray (n_features)
