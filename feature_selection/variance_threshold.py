@@ -1,6 +1,6 @@
 import numpy as np
 
-from dataset import Dataset
+from data.dataset import Dataset
 
 class VarianceThreshold:
     def __init__(self, threshold: float = 0.0):

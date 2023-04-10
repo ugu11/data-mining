@@ -5,10 +5,10 @@ script_dir = os.path.dirname( __file__ )
 mymodule_dir = os.path.join( script_dir, '..')
 sys.path.append( mymodule_dir )
 
-from dataset import Dataset
+from data.dataset import Dataset
 from typing import Callable
-from feature_selection.f_classif import f_classif 
-from feature_selection.f_regression import f_regression
+from statistics.f_classif import f_classif 
+from statistics.f_regression import f_regression
 
 class SelectKBest:
     """
@@ -102,7 +102,7 @@ class SelectKBest:
         return transformed_data
     
 if __name__ == '__main__':
-    from dataset import Dataset
+    from data.dataset import Dataset
     from selectKBest import SelectKBest
 
     dataset = Dataset('data_cachexia.csv')

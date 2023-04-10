@@ -9,7 +9,6 @@ class TransactionDataset:
     transactions: Dataset
         The dataset with the transactions
     
-    Attributes
     ----------
     items: list of tuples
         It stores the candidate items in each transaction

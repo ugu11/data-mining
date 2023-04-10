@@ -1,7 +1,6 @@
-from dataset import Dataset
+from data.dataset import Dataset
 from math import log2
 import numpy as np
-from dataset import Dataset
 from sklearn.model_selection import train_test_split
 
 class Node:

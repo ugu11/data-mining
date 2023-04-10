@@ -7,7 +7,7 @@ mymodule_dir = os.path.join( script_dir, '..')
 sys.path.append( mymodule_dir )
 print(mymodule_dir)
 
-from dataset import Dataset
+from data.dataset import Dataset
 from models.prism import Prism
 
 class TestPrismClassifier(unittest.TestCase):

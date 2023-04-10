@@ -8,7 +8,7 @@ mymodule_dir = os.path.join( script_dir, '..')
 sys.path.append( mymodule_dir )
 
 from models.decision_tree import DecisionTrees
-from dataset import Dataset
+from data.dataset import Dataset
 from sklearn.model_selection import train_test_split
 
 class TestDecisionTree(unittest.TestCase):

@@ -1,4 +1,4 @@
-from dataset import Dataset
+from data.dataset import Dataset
 import numpy as np
 from math import exp, pi, sqrt
 

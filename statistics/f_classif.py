@@ -2,7 +2,7 @@ from typing import Tuple, Union
 import numpy as np
 import sys
 
-from dataset import Dataset
+from data.dataset import Dataset
 from scipy.stats import f_oneway
 from sklearn import feature_selection
 

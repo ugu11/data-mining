@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 
-from dataset import Dataset
+from data.dataset import Dataset
 from scipy import stats
 from sklearn import feature_selection
 from typing import Tuple

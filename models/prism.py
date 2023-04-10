@@ -6,7 +6,7 @@ script_dir = os.path.dirname( __file__ )
 mymodule_dir = os.path.join( script_dir, '..')
 sys.path.append( mymodule_dir )
 
-from dataset import Dataset
+from data.dataset import Dataset
 
 class Prism:
     """

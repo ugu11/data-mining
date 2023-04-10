@@ -9,9 +9,9 @@ mymodule_dir = os.path.join( script_dir, '..')
 sys.path.append( mymodule_dir )
 
 from feature_selection.selectKBest import SelectKBest
-from dataset import Dataset
-from feature_selection.f_regression import f_regression
-from feature_selection.f_classif import f_classif
+from data.dataset import Dataset
+from statistics.f_classif import f_classif 
+from statistics.f_regression import f_regression
 
 
 class TestSelectKBest(unittest.TestCase):
