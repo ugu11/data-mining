@@ -1,14 +1,12 @@
 from typing import Tuple, Sequence
-from typing import Union
 
 import numpy as np
 
 class Dataset:
     # def __init__(self, X: np.ndarray, y: np.ndarray = None, features: Sequence[str] = None, label: str = None):
-    def __init__(self, filename = None, sep=',', skip_header=1):
+    def __init__(self, filename=None, sep=',', skip_header=1, X=None, y=None, features=None, label=None):
         """
         Dataset represents a machine learning tabular dataset.
-
         Parameters
         ----------
         X: numpy.ndarray (n_samples, n_features)
@@ -20,26 +18,35 @@ class Dataset:
         label: str (1)
             The label name
         """
+        # if X is None:
+        #     raise ValueError("X cannot be None")
+
+        # if features is None:
+        #     features = [str(i) for i in range(X.shape[1])]
+        # else:
+        #     features = list(features)
+
+        # if y is not None and label is None:
+        #     label = "y"
+
         self.X = None
         self.y = None
 
         if filename is not None:
-            self.readDataset(filename, sep, skip_header)
+            self.readDataset(filename, sep, skip_header, label)
+        elif type(X) != type(None) and type(y) != type(None):
+            self.X = X
+            self.y = y
 
-    def __get_col_type(self, value) -> str:
-        """
-        Get a column's type: numerical or categorical
-
-        Parameters
-        ----------
-        value
-            Value of an element of that column
+        if type(features) != type(None):
+            self.feature_names = features
         
-        Returns
-        ----------
-        str
-            Type of the column
-        """
+        if type(label) != type(None):
+            self.label = label
+        # self.features = features
+        # self.label = label
+
+    def __get_col_type(self, value):
         try:
             arr = np.array([float(value)])
         except ValueError:
@@ -50,28 +57,7 @@ class Dataset:
 
         return None
     
-    def __read_datatypes(self, filename: str, sep: str, skip_header: int) -> Union[list, list, list]:
-        """
-        Get the features a and their data types
-
-        Parameters
-        ----------
-        filename: string
-            Name of the file being read
-        sep: string
-            Seperator in the csv file
-        skip_header: int
-            Header size to skip
-
-        Returns
-        ----------
-        feature_names: list
-            Name of each feature
-        numericals: list
-            List of the numerical features
-        categoricals: list
-            List of the categorical features
-        """
+    def __read_datatypes(self, filename, sep, skip_header):
         with open(filename) as file:
             if skip_header > 0:
                 feature_names = file.readline().rstrip().split(sep)
@@ -91,22 +77,7 @@ class Dataset:
             
             return feature_names, numericals, categoricals
         
-    def __get_categories(self, data: np.ndarray, cols: list) -> dict:
-        """
-        Get the categories of the categorical feature
-
-        Parameters
-        ----------
-        data: numpy.ndarray
-            Matrix with the data of the dataset
-        cols: list
-            List of categorical features
-
-        Returns
-        ----------
-        categories: dict
-           Available categories for each categorical feature
-        """
+    def __get_categories(self, data, cols):
         categories = {}
         for c in range(len(cols)):
             col = data.T[c]
@@ -114,24 +85,7 @@ class Dataset:
             categories[c] = np.delete(uniques, uniques == '')
         return categories
         
-    def __label_encode(self, data: np.ndarray, categorical_columns: list) -> Tuple[np.ndarray, dict]:
-        """
-        Encode categorical features to numerical data
-
-        Parameters
-        ----------
-        data: numpy.ndarray
-            Matrix with the data of the dataset
-        categorical_columns: list
-            List of categorical features
-
-        Returns
-        ----------
-        enc_data: numpy.ndarray
-            Encoded data
-        categories: dict
-           Available categories for each categorical feature
-        """
+    def __label_encode(self, data, categorical_columns):
         categories = self.__get_categories(data, categorical_columns)
         enc_data = np.full(data.shape, np.nan)
     
@@ -144,45 +98,50 @@ class Dataset:
 
         return enc_data, categories
 
-    def readDataset(self, filename, sep = ",", skip_header=1):
-        """
-        Read the dataset from a csv file.
-
-        Parameters
-        ----------
-        filename: string
-            Name of the file being read
-        sep: string
-            Seperator in the csv file
-        skip_header: int
-            Header size to skip
-        """
+    def readDataset(self, filename, sep = ",", skip_header=1, label=None):
         feature_names, numericals, categoricals = self.__read_datatypes(filename, sep, skip_header)
+        label_index = -1 if label == None else feature_names.index(label)
+            
+        if len(numericals) > 0:
+            n_data = np.genfromtxt(filename, delimiter=sep, usecols=numericals, skip_header=skip_header)
+        else: n_data = np.array([])
+        if len(categoricals) > 0:
+            c_data = np.genfromtxt(filename, delimiter=sep, dtype='U', usecols=categoricals, skip_header=skip_header)
+            if len(c_data.shape) == 1:
+                c_data = np.reshape(c_data, (c_data.shape[0], 1))
 
-        n_data = np.genfromtxt(filename, delimiter=sep, usecols=numericals, skip_header=skip_header)
-        c_data = np.genfromtxt(filename, delimiter=sep, dtype='U', usecols=categoricals, skip_header=skip_header)
-        if len(c_data.shape) == 1:
-            c_data = np.reshape(c_data, (c_data.shape[0], 1))
+            enc_data, categories = self.__label_encode(c_data, categoricals)
+        else: enc_data = np.array([])
 
-        enc_data, categories = self.__label_encode(c_data, categoricals)
-        data = np.concatenate((n_data.T, enc_data.T)).T
-        data = np.full((n_data.shape[0], n_data.shape[1] + enc_data.shape[1]), np.nan)
-        data.T[numericals] = n_data.T
-        data.T[categoricals] = enc_data.T
+        if len(numericals) > 0 and len(categoricals) > 0:
+            data = np.concatenate((n_data.T, enc_data.T)).T
+            data = np.full((n_data.shape[0], n_data.shape[1] + enc_data.shape[1]), np.nan)
+        elif len(numericals) > 0:
+            data = n_data
+        elif len(categoricals) > 0:
+            data = enc_data
+
+        if len(numericals) > 0:
+            data.T[numericals] = n_data.T
+
+        if len(categoricals) > 0:
+            data.T[categoricals] = enc_data.T
 
         self.data = data
         if skip_header == 0:
             self.feature_names = None
             self.label = None
         else:
-            self.feature_names = feature_names[:-1]
-            self.label = [feature_names[-1]]
+            self.feature_names = feature_names.copy()
+            self.feature_names.pop(label_index)
+            self.label = [feature_names[label_index]]
         self.numerical_cols = numericals
         self.categorical_cols = categoricals
         self.categories = categories
 
-        self.X = self.data[:,0:-1]
-        self.y = self.data[:,-1]
+        self.X = self.data.copy()
+        self.X = np.delete(self.X, label_index, axis=1)
+        self.y = self.data[:,label_index]
 
     def shape(self) -> Tuple[int, int]:
         """
@@ -258,24 +217,24 @@ class Dataset:
         """
         return np.nanmax(self.X, axis=0)
 
-    def replace_missing_values(self, replaceby, feature_index) -> np.ndarray:
+    def replace_missing_values(self, replaceby: str, feature_index: int=None) -> np.ndarray:
         """
-        Returns the dataset with a certain feature with its missing values replaced by the mode or the mean.
-        
-        Parameters
-        ----------
-        replaceby : str
-            Indicates if the missing values will be replaced  
-            by mode or average
-        
-        feature_index: int
-            Indicates the feature that contains the missing values to be replaced
-        
+        Returns the missing values replaced by the median
         Returns
         -------
-        filled_dataset: numpy.ndarray (n_features)
-            The dataset with the missing values replaced
+        replaceby: str
+            Method of replacement
+        feature_index: int
+            Index of the feature being treated
+        -------
+        numpy.ndarray (n_features)
         """
+        if feature_index == None:
+            for i in range(self.X.shape[1]):
+                self.replace_missing_values(replaceby, feature_index=i)
+            
+            return
+
         if self.X.shape[1] > feature_index:                
             feature_values = self.X[:, feature_index]
             
@@ -284,78 +243,48 @@ class Dataset:
                 mode_index = np.argmax(counts)
                 mode_value = values[mode_index]
                 filled_feature = np.where(np.isnan(feature_values), mode_value, feature_values)
-                filled_dataset = np.copy(self.X)
-                filled_dataset[:, feature_index] = filled_feature
+                # filled_dataset = np.copy(self.X)
+                self.X[:, feature_index] = filled_feature
 
             elif replaceby == 'mean':
                 mean_value = np.nanmean(feature_values)
                 filled_feature = np.where(np.isnan(feature_values), mean_value, feature_values)
-                filled_dataset = np.copy(self.X)
-                filled_dataset[:, feature_index] = filled_feature
-
-            return filled_dataset
+                # filled_dataset = np.copy(self.X)
+                self.X[:, feature_index] = filled_feature
         else:
             print("That feature doesn't exist")
-
-    def replace_missing_values_dataset(self, replaceby) -> np.ndarray:
-        """
-        Returns all the missing values replaced by the mode or the mean, in all dataset
-
-        Parameters
-        ----------
-        replaceby : str
-            Indicates if the missing values will be replaced  
-            by mode or average
-
-        Returns
-        -------
-        self.X: numpy.ndarray (n_features)
-            The dataset with all the missing values replaced
-        """
-        for feature_index in range(len(self.feature_names)): 
-            feature_values = self.X[:, feature_index]   
-            if replaceby == 'mode':
-                values, counts = np.unique(feature_values, return_counts=True)
-                mode_index = np.argmax(counts)
-                mode_value = values[mode_index]
-                filled_feature = np.where(np.isnan(feature_values), mode_value, feature_values)
-                self.X[:, feature_index] = filled_feature
-
-            elif replaceby == 'mean':
-                mean_value = np.nanmean(feature_values)
-                filled_feature = np.where(np.isnan(feature_values), mean_value, feature_values)
-                self.X[:, feature_index] = filled_feature
-            
-
-        return self.X
 
     def get_feature(self, feature_index) -> np.ndarray:
         """
         Returns the specified feature from the dataset
-
-        Parameters
-        ----------
-        feature_index: int
-            Feature index
-        
         Returns
         -------
         numpy.ndarray (n_features)
         """
-        if self.X.shape[1] > feature_index:
-            return self.X[:, feature_index]
-        else:
-            print("That feature doesn't exist")
+        if type(feature_index) is int or type(feature_index) is np.int_:
+            if self.X.shape[1] > feature_index:
+                return self.X[:, feature_index]
+        elif type(feature_index) is str or type(feature_index) is np.str_:
+            if feature_index in self.feature_names:
+                idx = self.feature_names.index(feature_index)
+                return self.X[:, idx]
+        elif type(feature_index) is list or type(feature_index) is np.ndarray :
+            idxs = []
+            for f in list(feature_index):
+                if type(f) is int or type(f) is np.int_:
+                    if self.X.shape[1] > f:
+                        idxs.append(f)
+                elif type(f) is str or type(f) is np.str_:
+                    if f in self.feature_names:
+                        idxs.append(self.feature_names.index(f))
+            return self.X[:, idxs]
+
+        print("That feature doesn't exist")
+        return None
 
     def get_line(self, line_index) -> np.ndarray:
         """
         Returns the specified line from the dataset
-        
-        Parameters
-        ----------
-        line_index: int
-            index line of teh dataset
-
         Returns
         -------
         numpy.ndarray (n_features)
@@ -368,15 +297,6 @@ class Dataset:
     def get_value(self, line_index, feature_index) -> np.ndarray:
         """
         Returns the specified value from the dataset
-        
-        Parameters
-        ----------
-        line_index: int
-            index line of the value in the dataset
-
-        feature_index: int
-            Feature index of the value
-        
         Returns
         -------
         numpy.ndarray (n_features)
@@ -388,19 +308,7 @@ class Dataset:
 
     def set_value(self, line_index, feature_index, new_value) -> np.ndarray:
         """
-        Returns the dataset with the new value.
-        
-        Parameters
-        ----------
-        line_index: int
-            index line of the value in the dataset
-
-        feature_index: int
-            Feature index of the value
-
-        new_value: int
-            New value
-        
+        Returns a dataset with the new value 
         Returns
         -------
         numpy.ndarray (n_features)
@@ -414,7 +322,6 @@ class Dataset:
     def count_missing_values(self) -> np.ndarray:
         """
         Returns the number of missing values in a dataset.
-        
         Returns
         -------
         numpy.ndarray (n_features)
@@ -437,7 +344,7 @@ class Dataset:
     #         "var": self.get_variance()
     #     }
     #     return pd.DataFrame.from_dict(data, orient="index", columns=self.features)
-
+    
 def main():
     dataset = Dataset('data.csv', skip_header=0)
     dt = Dataset('notas.csv')

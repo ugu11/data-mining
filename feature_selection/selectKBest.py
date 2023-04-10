@@ -7,8 +7,8 @@ sys.path.append( mymodule_dir )
 
 from data.dataset import Dataset
 from typing import Callable
-from statistics.f_classif import f_classif 
-from statistics.f_regression import f_regression
+from stats.f_classif import f_classif 
+from stats.f_regression import f_regression
 
 class SelectKBest:
     """
@@ -102,9 +102,6 @@ class SelectKBest:
         return transformed_data
     
 if __name__ == '__main__':
-    from data.dataset import Dataset
-    from selectKBest import SelectKBest
-
     dataset = Dataset('data_cachexia.csv')
     selector = SelectKBest(3, score_func=f_regression)
     selector.fit(dataset)

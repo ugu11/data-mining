@@ -1,10 +1,14 @@
 import numpy as np
-import sys
-
-from data.dataset import Dataset
+import os, sys
 from scipy import stats
 from sklearn import feature_selection
 from typing import Tuple
+
+script_dir = os.path.dirname( __file__ )
+mymodule_dir = os.path.join( script_dir, '..')
+sys.path.append( mymodule_dir )
+
+from data.dataset import Dataset
 
 def f_regression(dataset: Dataset) -> Tuple[np.ndarray, np.ndarray]:
     """

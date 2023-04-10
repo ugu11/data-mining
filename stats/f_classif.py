@@ -1,10 +1,14 @@
-from typing import Tuple, Union
+from typing import Tuple
 import numpy as np
-import sys
-
-from data.dataset import Dataset
 from scipy.stats import f_oneway
 from sklearn import feature_selection
+import os, sys
+
+script_dir = os.path.dirname( __file__ )
+mymodule_dir = os.path.join( script_dir, '..')
+sys.path.append( mymodule_dir )
+
+from data.dataset import Dataset
 
 def f_classif(dataset: Dataset) -> Tuple[np.ndarray, np.ndarray]:
     """

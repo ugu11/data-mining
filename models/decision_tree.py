@@ -1,7 +1,14 @@
-from data.dataset import Dataset
 from math import log2
 import numpy as np
 from sklearn.model_selection import train_test_split
+import os, sys
+
+script_dir = os.path.dirname( __file__ )
+mymodule_dir = os.path.join( script_dir, '..')
+sys.path.append( mymodule_dir )
+
+
+from data.dataset import Dataset
 
 class Node:
     """
