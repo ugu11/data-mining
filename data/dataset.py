@@ -7,6 +7,7 @@ class Dataset:
     def __init__(self, filename=None, sep=',', skip_header=1, X=None, y=None, features=None, label=None):
         """
         Dataset represents a machine learning tabular dataset.
+
         Parameters
         ----------
         X: numpy.ndarray (n_samples, n_features)
@@ -47,6 +48,19 @@ class Dataset:
         # self.label = label
 
     def __get_col_type(self, value):
+        """
+        Get a column's type: numerical or categorical
+
+        Parameters
+        ----------
+        value
+            Value of an element of that column
+        
+        Returns
+        ----------
+        str
+            Type of the column
+        """
         try:
             arr = np.array([float(value)])
         except ValueError:
@@ -58,6 +72,27 @@ class Dataset:
         return None
     
     def __read_datatypes(self, filename, sep, skip_header):
+        """
+        Get the features a and their data types
+
+        Parameters
+        ----------
+        filename: string
+            Name of the file being read
+        sep: string
+            Seperator in the csv file
+        skip_header: int
+            Header size to skip
+
+        Returns
+        ----------
+        feature_names: list
+            Name of each feature
+        numericals: list
+            List of the numerical features
+        categoricals: list
+            List of the categorical features
+        """
         with open(filename) as file:
             if skip_header > 0:
                 feature_names = file.readline().rstrip().split(sep)
@@ -78,6 +113,21 @@ class Dataset:
             return feature_names, numericals, categoricals
         
     def __get_categories(self, data, cols):
+        """
+        Get the categories of the categorical feature
+
+        Parameters
+        ----------
+        data: numpy.ndarray
+            Matrix with the data of the dataset
+        cols: list
+            List of categorical features
+
+        Returns
+        ----------
+        categories: dict
+           Available categories for each categorical feature
+        """
         categories = {}
         for c in range(len(cols)):
             col = data.T[c]
@@ -86,6 +136,23 @@ class Dataset:
         return categories
         
     def __label_encode(self, data, categorical_columns):
+        """
+        Encode categorical features to numerical data
+
+        Parameters
+        ----------
+        data: numpy.ndarray
+            Matrix with the data of the dataset
+        categorical_columns: list
+            List of categorical features
+
+        Returns
+        ----------
+        enc_data: numpy.ndarray
+            Encoded data
+        categories: dict
+           Available categories for each categorical feature
+        """
         categories = self.__get_categories(data, categorical_columns)
         enc_data = np.full(data.shape, np.nan)
     
@@ -99,6 +166,18 @@ class Dataset:
         return enc_data, categories
 
     def readDataset(self, filename, sep = ",", skip_header=1, label=None):
+        """
+        Read the dataset from a csv file.
+
+        Parameters
+        ----------
+        filename: string
+            Name of the file being read
+        sep: string
+            Seperator in the csv file
+        skip_header: int
+            Header size to skip
+        """
         feature_names, numericals, categoricals = self.__read_datatypes(filename, sep, skip_header)
         label_index = -1 if label == None else feature_names.index(label)
             
@@ -217,24 +296,24 @@ class Dataset:
         """
         return np.nanmax(self.X, axis=0)
 
-    def replace_missing_values(self, replaceby: str, feature_index: int=None) -> np.ndarray:
+    def replace_missing_values(self, replaceby, feature_index) -> np.ndarray:
         """
-        Returns the missing values replaced by the median
+        Returns the dataset with a certain feature with its missing values replaced by the mode or the mean.
+        
+        Parameters
+        ----------
+        replaceby : str
+            Indicates if the missing values will be replaced  
+            by mode or average
+        
+        feature_index: int
+            Indicates the feature that contains the missing values to be replaced
+        
         Returns
         -------
-        replaceby: str
-            Method of replacement
-        feature_index: int
-            Index of the feature being treated
-        -------
-        numpy.ndarray (n_features)
+        filled_dataset: numpy.ndarray (n_features)
+            The dataset with the missing values replaced
         """
-        if feature_index == None:
-            for i in range(self.X.shape[1]):
-                self.replace_missing_values(replaceby, feature_index=i)
-            
-            return
-
         if self.X.shape[1] > feature_index:                
             feature_values = self.X[:, feature_index]
             
@@ -243,16 +322,50 @@ class Dataset:
                 mode_index = np.argmax(counts)
                 mode_value = values[mode_index]
                 filled_feature = np.where(np.isnan(feature_values), mode_value, feature_values)
-                # filled_dataset = np.copy(self.X)
+                filled_dataset = np.copy(self.X)
+                filled_dataset[:, feature_index] = filled_feature
+
+            elif replaceby == 'mean':
+                mean_value = np.nanmean(feature_values)
+                filled_feature = np.where(np.isnan(feature_values), mean_value, feature_values)
+                filled_dataset = np.copy(self.X)
+                filled_dataset[:, feature_index] = filled_feature
+
+            return filled_dataset
+        else:
+            print("That feature doesn't exist")
+
+    def replace_missing_values_dataset(self, replaceby) -> np.ndarray:
+        """
+        Returns all the missing values replaced by the mode or the mean, in all dataset
+
+        Parameters
+        ----------
+        replaceby : str
+            Indicates if the missing values will be replaced  
+            by mode or average
+
+        Returns
+        -------
+        self.X: numpy.ndarray (n_features)
+            The dataset with all the missing values replaced
+        """
+        for feature_index in range(len(self.feature_names)): 
+            feature_values = self.X[:, feature_index]   
+            if replaceby == 'mode':
+                values, counts = np.unique(feature_values, return_counts=True)
+                mode_index = np.argmax(counts)
+                mode_value = values[mode_index]
+                filled_feature = np.where(np.isnan(feature_values), mode_value, feature_values)
                 self.X[:, feature_index] = filled_feature
 
             elif replaceby == 'mean':
                 mean_value = np.nanmean(feature_values)
                 filled_feature = np.where(np.isnan(feature_values), mean_value, feature_values)
-                # filled_dataset = np.copy(self.X)
                 self.X[:, feature_index] = filled_feature
-        else:
-            print("That feature doesn't exist")
+            
+
+        return self.X
 
     def get_feature(self, feature_index) -> np.ndarray:
         """
