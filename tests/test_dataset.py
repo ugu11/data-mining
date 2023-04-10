@@ -133,15 +133,39 @@ class TestDataset(unittest.TestCase):
         result = (np.allclose(maximum, expected_maximum, equal_nan=True)) == True
         print("[test_get_max]:", 'Pass' if result else 'Failed')
 
-    def test_replace_missing_values_full_dataset(self):
+    def test_replace_missing_values(self):
+        """
+        Test if the replace_missing_values function is correctly replacing the missing values 
+        in the feature of the dataset.
+        """
+        dt = Dataset('./datasets/notas.csv')
+        result_mode = dt.replace_missing_values("mode",1)
+        result_mean = dt.replace_missing_values("mean",2)
+        expected_result_mode = np.array([[ 4., 12., 16.],[ 1., 17., 16.],
+                                    [ 7., 16., 18.],[ 5., 16., np.nan],
+                                    [ 3., 14., 17.],[ 0., 19., 18.],
+                                    [ 8., 16., 14.],[ 2., 16., 15.],
+                                    [ 6., 15., 15.],[ 9., 16., 15.]])
+        expected_result_mean = np.array([[ 4., 12., 16.],[ 1., 17., 16.],
+                                         [ 7., np.nan, 18.],[ 5., 16., 16.],
+                                         [ 3., 14., 17.],[ 0., 19., 18.],
+                                         [ 8., 16., 14.],[ 2., np.nan, 15.],
+                                         [ 6., 15., 15.],[ 9., 16., 15.]])
+        self.assertEqual(np.allclose(result_mode, expected_result_mode, equal_nan=True), True)
+        self.assertEqual(np.allclose(result_mean, expected_result_mean, equal_nan=True), True)
+        result = (np.allclose(result_mode, expected_result_mode, equal_nan=True) and 
+                  np.allclose(result_mean, expected_result_mean, equal_nan=True)) == True
+        print("[test_replace_missing_values]:", 'Pass' if result else 'Failed')
+
+    def test_replace_missing_values_datset(self):
         """
         Test if the replace_missing_values_datset function is correctly replacing the missing values 
-        of all the features of the dataset
+        in the feature of the dataset.
         """
         dt = Dataset('./datasets/notas.csv')
         dt2 = Dataset('./datasets/notas.csv')
-        dt.replace_missing_values("mode")
-        dt2.replace_missing_values("mean")
+        result_mode = dt.replace_missing_values_dataset("mode")
+        result_mean = dt2.replace_missing_values_dataset("mean")
         expected_result_mode = np.array([[ 4., 12., 16.],[ 1., 17., 16.],
                                          [ 7., 16., 18.],[ 5., 16., 15.],
                                          [ 3., 14., 17.],[ 0., 19., 18.],
@@ -152,10 +176,10 @@ class TestDataset(unittest.TestCase):
                                     [ 3., 14., 17.],[ 0., 19., 18.],
                                     [ 8., 16., 14.],[ 2., 15.625, 15.],
                                     [ 6., 15., 15.],[ 9., 16., 15.]])
-        self.assertEqual((dt.X == expected_result_mode).all(), True)
-        self.assertEqual((dt2.X == expected_result_mean).all(), True)
-        result = ((dt.X == expected_result_mode).all() and
-                 (dt2.X == expected_result_mean).all() ) == True
+        self.assertEqual((result_mode == expected_result_mode).all(), True)
+        self.assertEqual((result_mean == expected_result_mean).all(), True)
+        result = ((result_mode == expected_result_mode).all() and
+                 (result_mean == expected_result_mean).all() ) == True
         print("[test_replace_missing_values_dataset]:", 'Pass' if result else 'Failed')
 
     def test_get_feature(self):

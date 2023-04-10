@@ -216,3 +216,15 @@ class Prism:
         feature_idx = feature_names.index(feature[0])
 
         return feature_idx, int(float(feature[1]))
+
+if __name__ == '__main__':
+    d = Dataset('teste.csv')
+    p = Prism()
+    p.fit(d)
+    pred = p.predict(np.array([
+        [2, 1, 0, 1],
+        [1, 0, 0, 1],
+        [1, 1, 2, 0]
+    ]))
+    print("Prediction:", pred)
+    print(p)

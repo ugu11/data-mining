@@ -208,8 +208,7 @@ class NaiveBayes:
 
 
 if __name__ == '__main__':
-    from dataset import Dataset
-    from naiveBayes import NaiveBayes
+    from data.dataset import Dataset
 
     data = Dataset('teste.csv',label='Play Tennis')
     nb = NaiveBayes(use_logarithm=False)
