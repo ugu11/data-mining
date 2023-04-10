@@ -10,8 +10,8 @@ sys.path.append( mymodule_dir )
 
 from feature_selection.selectKBest import SelectKBest
 from data.dataset import Dataset
-from statistics.f_classif import f_classif 
-from statistics.f_regression import f_regression
+from stats.f_classif import f_classif 
+from stats.f_regression import f_regression
 
 
 class TestSelectKBest(unittest.TestCase):
