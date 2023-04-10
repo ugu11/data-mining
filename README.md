@@ -2,12 +2,15 @@
 
 #### Realizado por Ana Filipa Ribeiro Murta, pg50184, e Hugo André Sousa Gomes, pg51242.
 
-* TPC1 => Class Dataset
+* TPC1 => Class Dataset (pasta data)
 
-* TPC2 => Feature Selection (VarianceThreshold, SelectKBest, f_classif, f_regression)
+* TPC2 => Feature Selection (VarianceThreshold (pasta feature_selection), 
+                             SelectKBest (pasta feature_selection), 
+                             f_classif (pasta statistics), 
+                             f_regression (pasta statistics) )
 
-* TPC3 => Decision trees for classification tasks
+* TPC3 => Decision trees for classification tasks (pasta models)
 
-* TPC4 => Algoritmo Naive Bayes e Prism
+* TPC4 => Algoritmo Naive Bayes e Prism (pasta models)
 
-* TPC5 => Algoritmo Apriori
+* TPC5 => Algoritmo Apriori (pasta models)
