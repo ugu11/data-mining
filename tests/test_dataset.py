@@ -157,10 +157,10 @@ class TestDataset(unittest.TestCase):
                   np.allclose(result_mean, expected_result_mean, equal_nan=True)) == True
         print("[test_replace_missing_values]:", 'Pass' if result else 'Failed')
 
-    def test_replace_missing_values_datset(self):
+    def test_replace_missing_values_dataset(self):
         """
-        Test if the replace_missing_values_datset function is correctly replacing the missing values 
-        in the feature of the dataset.
+        Test if the replace_missing_values_dataset function is correctly replacing the missing values 
+        in the dataset.
         """
         dt = Dataset('./datasets/notas.csv')
         dt2 = Dataset('./datasets/notas.csv')
