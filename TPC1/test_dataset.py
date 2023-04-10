@@ -14,8 +14,8 @@ class TestDataset(unittest.TestCase):
         expected_feature_names = ['Nome', 'LaboratÃ³rios', ' Alg. AvanÃ§ados']
         expected_numerical_cols = [1, 2, 3]
         expected_categorical_cols = [0] 
-        # expected_categories = {0: np.array(['Carina', 'Carla', 'Joaquim', 'JosÃ©', 'JoÃ£o', 'Pedro', 'Ricardo',
-        #                     'SÃ³nia', 'Telma', 'Vanda'], dtype='<U7')}
+        expected_categories = {0: np.array(['Carina', 'Carla', 'Joaquim', 'JosÃ©', 'JoÃ£o', 'Pedro', 'Ricardo',
+       'SÃ³nia', 'Telma', 'Vanda'], dtype='<U7')}
         expected_X = np.array([[ 4., 12., 16.],[ 1., 17., 16.],[ 7.,np.nan, 18.],
                                [ 5., 16., np.nan],[ 3., 14., 17.],[ 0., 19., 18.],
                                [ 8., 16., 14.],[ 2., np.nan, 15.],[ 6., 15., 15.],
@@ -25,14 +25,14 @@ class TestDataset(unittest.TestCase):
         self.assertEqual(dt.feature_names,expected_feature_names)  
         self.assertEqual(dt.numerical_cols,expected_numerical_cols)  
         self.assertEqual(dt.categorical_cols,expected_categorical_cols) 
-        #self.assertEqual(np.array_equal(dt.categories,expected_categories), True)  
+        self.assertEqual(np.array_equal(dt.categories[0],expected_categories[0]), True)  
         self.assertEqual(np.allclose(dt.X, expected_X, equal_nan=True) ,True)
         self.assertEqual(np.allclose(dt.y, expected_y, equal_nan=True) ,True)     
         result = ( dt.label == expected_label and
                   dt.feature_names == expected_feature_names and
                   dt.numerical_cols == expected_numerical_cols and 
                   dt.categorical_cols == expected_categorical_cols and
-                  #dt.categories == expected_categories and
+                  np.array_equal(dt.categories[0],expected_categories[0]) and
                   np.allclose(dt.X, expected_X, equal_nan=True) and
                   np.allclose(dt.y, expected_y, equal_nan=True) ) == True
         print("[test_readDataset]:", 'Pass' if result else 'Failed')
@@ -230,5 +230,6 @@ class TestDataset(unittest.TestCase):
         dt.set_value(2,0,4)
         new_value = dt.get_value(2,0)
         self.assertEqual( ( old_value != new_value ), True)
-        result = ( old_value != new_value) == True
+        self.assertEqual( (new_value == 4), True)
+        result = ( old_value != new_value and new_value == 4) == True
         print("[test_set_value]:", 'Pass' if result else 'Failed')
