@@ -49,9 +49,9 @@ class VarianceThreshold:
 
 
 if __name__ == '__main__':
-    dataset = Dataset('../tests/datasets/notas.csv')
+    dataset = Dataset('../tests/datasets/Iris.csv')
 
     selector = VarianceThreshold(0.5)
     selector = selector.fit(dataset)
     dataset = selector.transform(dataset)
-    print(dataset)
+    print(dataset.feature_names)
