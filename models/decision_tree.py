@@ -467,7 +467,7 @@ class DecisionTrees:
         return np.mean(X == y)
     
 if __name__ == '__main__':
-    data = Dataset('./datasets/teste.csv',label='Play Tennis')
+    data = Dataset('../tests/datasets/teste.csv',label='Play Tennis')
     X_train, X_test, y_train, y_test = train_test_split(data.X, data.y, test_size=0.2, random_state=1234)
     clf = DecisionTrees(data,max_depth=6,criterion='entropy')
     clf.fit(X_train, y_train)

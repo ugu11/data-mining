@@ -2,6 +2,12 @@ from typing import Tuple, Sequence
 
 import numpy as np
 
+import os, sys
+
+script_dir = os.path.dirname( __file__ )
+mymodule_dir = os.path.join( script_dir, '..')
+sys.path.append( mymodule_dir )
+
 class Dataset:
     # def __init__(self, X: np.ndarray, y: np.ndarray = None, features: Sequence[str] = None, label: str = None):
     def __init__(self, filename=None, sep=',', skip_header=1, X=None, y=None, features=None, label=None):
@@ -457,10 +463,11 @@ class Dataset:
     #         "var": self.get_variance()
     #     }
     #     return pd.DataFrame.from_dict(data, orient="index", columns=self.features)
-    
+
+
 def main():
-    dataset = Dataset('./datasets/notas.csv', skip_header=0)
-    dt = Dataset('./datasets/notas.csv')
+    dataset = Dataset('../tests/datasets/notas.csv', skip_header=0)
+    dt = Dataset('../tests/datasets/notas.csv')
     dt2 = dt.replace_missing_values("mean",2)
     feature = dt.get_feature(1)
     line = dt.get_line(2)

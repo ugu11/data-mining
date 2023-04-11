@@ -216,7 +216,7 @@ class NaiveBayes:
 if __name__ == '__main__':
     from data.dataset import Dataset
 
-    data = Dataset('./datasets/teste.csv',label='Play Tennis')
+    data = Dataset('../tests/datasets/teste.csv',label='Play Tennis')
     nb = NaiveBayes(use_logarithm=False)
     nb.fit(data.X, data.y)
     predictions = nb.predict(data.X)

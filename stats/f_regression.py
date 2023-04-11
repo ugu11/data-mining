@@ -45,7 +45,7 @@ def f_regression(dataset: Dataset) -> Tuple[np.ndarray, np.ndarray]:
     return F, p
 
 if __name__ == '__main__':
-    dataset = Dataset('./datasets/data_cachexia.csv')
+    dataset = Dataset('../tests/datasets/data_cachexia.csv')
     print(dataset.X.shape, dataset.y.shape)
     p = f_regression(dataset)
     _, pr = feature_selection.f_regression(dataset.X, dataset.y)

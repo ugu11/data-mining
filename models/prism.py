@@ -218,7 +218,7 @@ class Prism:
         return feature_idx, int(float(feature[1]))
 
 if __name__ == '__main__':
-    d = Dataset('./datasets/teste.csv')
+    d = Dataset('../tests/datasets/teste.csv')
     p = Prism()
     p.fit(d)
     pred = p.predict(np.array([
