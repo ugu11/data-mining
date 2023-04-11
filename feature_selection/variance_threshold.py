@@ -49,7 +49,7 @@ class VarianceThreshold:
 
 
 if __name__ == '__main__':
-    dataset = Dataset('notas.csv')
+    dataset = Dataset('./datasets/notas.csv')
 
     selector = VarianceThreshold()
     selector = selector.fit(dataset)

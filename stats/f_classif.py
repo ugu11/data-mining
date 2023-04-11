@@ -44,7 +44,7 @@ def f_classif(dataset: Dataset) -> Tuple[np.ndarray, np.ndarray]:
     return valuesF, valuesp
 
 if __name__ == '__main__':
-    dataset = Dataset('data_cachexia.csv')
+    dataset = Dataset('./datasets/data_cachexia.csv')
     #print(dataset.X.shape, dataset.y.shape)
     f, p = f_classif(dataset)
     fr, pr = feature_selection.f_classif(dataset.X, dataset.y)

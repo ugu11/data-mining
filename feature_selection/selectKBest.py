@@ -102,7 +102,7 @@ class SelectKBest:
         return transformed_data
     
 if __name__ == '__main__':
-    dataset = Dataset('data_cachexia.csv')
+    dataset = Dataset('./datasets/data_cachexia.csv')
     selector = SelectKBest(3, score_func=f_regression)
     selector.fit(dataset)
     new_data = selector.transform(dataset)

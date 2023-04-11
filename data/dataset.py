@@ -459,8 +459,8 @@ class Dataset:
     #     return pd.DataFrame.from_dict(data, orient="index", columns=self.features)
     
 def main():
-    dataset = Dataset('data.csv', skip_header=0)
-    dt = Dataset('notas.csv')
+    dataset = Dataset('./datasets/notas.csv', skip_header=0)
+    dt = Dataset('./datasets/notas.csv')
     dt2 = dt.replace_missing_values("mean",2)
     feature = dt.get_feature(1)
     line = dt.get_line(2)
