@@ -1,6 +1,8 @@
 from typing import Tuple, Sequence
 
 import numpy as np
+import random
+from random import shuffle
 
 import os, sys
 
@@ -222,7 +224,8 @@ class Dataset:
             self.label = [feature_names[label_index]]
         self.numerical_cols = numericals
         self.categorical_cols = categoricals
-        self.categories = categories
+        if len(categoricals):
+            self.categories = categories
 
         self.X = self.data.copy()
         self.X = np.delete(self.X, label_index, axis=1)
@@ -447,6 +450,22 @@ class Dataset:
         """
         missing_values = np.count_nonzero(np.isnan(self.X))
         return missing_values
+    
+
+    def train_test_split(self, p = 0.7):
+        random.seed(10)
+
+        ninst = self.X.shape[0]
+        inst_indexes = np.array(range(ninst))
+        ntr = (int)(p*ninst)
+        shuffle(inst_indexes)
+        tr_indexes = inst_indexes[1:ntr]
+        tst_indexes = inst_indexes[ntr+1:]
+        Xtr = self.X[tr_indexes,]
+        ytr = self.y[tr_indexes]
+        Xts = self.X[tst_indexes,]
+        yts = self.y[tst_indexes]
+        return (Xtr, ytr, Xts, yts) 
 
     # def summary(self) -> pd.DataFrame:
     #     """
