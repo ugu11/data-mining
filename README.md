@@ -14,3 +14,5 @@
 * TPC4 => Algoritmo Naive Bayes e Prism (pasta models)
 
 * TPC5 => Algoritmo Apriori (pasta models)
+
+* TPC8 => Linear regression, Logistic regression, MLP (pasta models)
