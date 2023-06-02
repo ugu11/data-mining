@@ -213,7 +213,7 @@ class Prism:
         """
         highest_prob_idx = np.argmax(probablity_table, axis=1)[2]
         feature = probablity_table.T[highest_prob_idx]
-        feature_idx = feature_names.index(feature[0])
+        feature_idx = list(feature_names).index(feature[0])
 
         return feature_idx, int(float(feature[1]))
 

@@ -40,6 +40,7 @@ class Dataset:
 
         self.X = None
         self.y = None
+        self.categories = []
 
         if filename is not None:
             self.readDataset(filename, sep, skip_header, label)
@@ -467,21 +468,21 @@ class Dataset:
         yts = self.y[tst_indexes]
         return (Xtr, ytr, Xts, yts) 
 
-    # def summary(self) -> pd.DataFrame:
-    #     """
-    #     Returns a summary of the dataset
-    #     Returns
-    #     -------
-    #     pandas.DataFrame (n_features, 5)
-    #     """
-    #     data = {
-    #         "mean": self.get_mean(),
-    #         "median": self.get_median(),
-    #         "min": self.get_min(),
-    #         "max": self.get_max(),
-    #         "var": self.get_variance()
-    #     }
-    #     return pd.DataFrame.from_dict(data, orient="index", columns=self.features)
+    def summary(self) -> dict:
+        """
+        Returns a summary of the dataset
+        Returns
+        -------
+        pandas.DataFrame (n_features, 5)
+        """
+        data = {
+            "mean": self.get_mean(),
+            "median": self.get_median(),
+            "min": self.get_min(),
+            "max": self.get_max(),
+            "var": self.get_variance()
+        }
+        return pd.DataFrame.from_dict(data, orient="index", columns=self.features)
 
 
 def main():

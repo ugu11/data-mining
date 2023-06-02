@@ -1,9 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-
 import numpy as np
 from data.dataset import Dataset
+np.random.seed(10)
 
 class MLP:
     def __init__(self, dataset: Dataset, hidden_nodes = 2, normalize = False):
@@ -23,13 +20,16 @@ class MLP:
         self.X = np.hstack ( (np.ones([self.X.shape[0],1]), self.X ) )
         
         self.h = hidden_nodes
-        self.W1 = np.zeros([hidden_nodes, self.X.shape[1]])
-        self.W2 = np.zeros([1, hidden_nodes+1])
+        # self.W1 = np.zeros([hidden_nodes, self.X.shape[1]])
+        self.W1 = np.random.rand(hidden_nodes, self.X.shape[1])
+        # self.W2 = np.zeros([1, hidden_nodes+1])
+        self.W2 = np.random.rand(1, hidden_nodes+1)
+        self.normalized = normalize
         
         if normalize:
             self.normalize()
-        else:
-            self.normalized = False
+        # else:
+        #     self.normalized = False
 
 
     def setWeights(self, w1, w2):
@@ -62,7 +62,7 @@ class MLP:
         intance: numpy.ndarray
             input given to the model
         """
-        x = np.empty([self.X.shape[1]])        
+        x = np.empty([self.X.shape[1]])
         x[0] = 1
         x[1:] = np.array(instance[:self.X.shape[1]-1])
         
@@ -79,6 +79,21 @@ class MLP:
         
         return sigmoid(z3)
 
+    def predictMany(self, instance):
+        """
+        Make a prediction based on the input
+
+        Parameters
+        ----------
+        intance: numpy.ndarray
+            input given to the model
+        """
+        res = []
+        for i in range(instance.shape[0]):
+            res.append(self.predict(instance[i]))
+
+        return np.round(res)
+    
     def costFunction(self, weights=None):
         """
         Calculates the cost. If the weights aren't set, they are automatically set
@@ -103,7 +118,7 @@ class MLP:
         z3 = np.dot(a2, self.W2.T)
         predictions = sigmoid(z3)
 
-        sqe = (predictions- self.y) ** 2
+        sqe = (predictions- self.y.reshape(m,1)) ** 2
         res = np.sum(sqe) / (2*m)
         return res
 
@@ -117,7 +132,7 @@ class MLP:
         
         initial_w = np.random.rand(size)        
         result = optimize.minimize(lambda w: self.costFunction(w), initial_w, method='BFGS', 
-                                    options={"maxiter":1000, "disp":False} )
+                                    options={"maxiter":100000, "disp":False} )
         weights = result.x
         self.W1 = weights[:self.h * self.X.shape[1]].reshape([self.h, self.X.shape[1]])
         self.W2 = weights[self.h * self.X.shape[1]:].reshape([1, self.h+1])
@@ -131,7 +146,6 @@ class MLP:
         self.sigma = np.std(self.X[:,1:], axis = 0)
         self.X[:,1:] = self.X[:,1:] / self.sigma
         self.normalized = True
-
 
 def sigmoid(x):
   return 1 / (1 + np.exp(-x))

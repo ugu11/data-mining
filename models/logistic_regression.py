@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-@author: miguelrocha
-"""
-
 import numpy as np
 from data.dataset import Dataset
 import matplotlib.pyplot as plt
@@ -273,7 +268,9 @@ class LogisticRegression:
         -------
             Predictions: nummpy.array
         """
-        p = sigmoid ( np.dot(Xt, self.theta) )
+        ones = np.ones((Xt.shape[0], 1))
+        Xt_ = np.append(ones, Xt, axis=1)
+        p = sigmoid ( np.dot(Xt_, self.theta) )
         return np.where(p >= 0.5, 1, 0)
     
     def accuracy(self, Xt, yt):
